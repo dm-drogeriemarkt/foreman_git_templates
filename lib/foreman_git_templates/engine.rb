@@ -18,7 +18,7 @@ module ForemanGitTemplates
 
     initializer 'foreman_git_templates.register_plugin', before: :finisher_hook do |_app|
       Foreman::Plugin.register :foreman_git_templates do
-        requires_foreman '>= 1.16'
+        requires_foreman '>= 1.19'
 
         # Add permissions
         security_block :foreman_git_templates do
@@ -28,15 +28,14 @@ module ForemanGitTemplates
         # Add a new role called 'Discovery' if it doesn't exist
         role 'ForemanGitTemplates', [:view_foreman_git_templates]
 
-        # add menu entry
-        menu :top_menu, :template,
-             url_hash: { controller: :'foreman_git_templates/hosts', action: :new_action },
-             caption: 'ForemanGitTemplates',
-             parent: :hosts_menu,
-             after: :hosts
-
         # add dashboard widget
         widget 'foreman_git_templates_widget', name: N_('Foreman plugin template widget'), sizex: 4, sizey: 1
+
+        register_facet(ForemanGitTemplates::TemplateUrlFacet, :template_url_facet) do
+          set_dependent_action :destroy
+        end
+
+        extend_rabl_template 'api/v2/hosts/main', 'api/v2/hosts/template_url'
       end
     end
 
@@ -45,6 +44,7 @@ module ForemanGitTemplates
       begin
         Host::Managed.send(:include, ForemanGitTemplates::HostExtensions)
         HostsHelper.send(:include, ForemanGitTemplates::HostsHelperExtensions)
+        ::Api::V2::HostsController.send :include, ForemanGitTemplates::Api::V2::HostsControllerExtensions
       rescue StandardError => e
         Rails.logger.warn "ForemanGitTemplates: skipping engine hook (#{e})"
       end
