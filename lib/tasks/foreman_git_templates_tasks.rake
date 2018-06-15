@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rake/testtask'
 
 # Tasks
@@ -31,7 +33,7 @@ namespace :foreman_git_templates do
                          "#{ForemanGitTemplates::Engine.root}/lib/**/*.rb",
                          "#{ForemanGitTemplates::Engine.root}/test/**/*.rb"]
       end
-    rescue
+    rescue StandardError
       puts 'Rubocop not loaded.'
     end
 
@@ -42,6 +44,4 @@ end
 Rake::Task[:test].enhance ['test:foreman_git_templates']
 
 load 'tasks/jenkins.rake'
-if Rake::Task.task_defined?(:'jenkins:unit')
-  Rake::Task['jenkins:unit'].enhance ['test:foreman_git_templates', 'foreman_git_templates:rubocop']
-end
+Rake::Task['jenkins:unit'].enhance ['test:foreman_git_templates', 'foreman_git_templates:rubocop'] if Rake::Task.task_defined?(:'jenkins:unit')
