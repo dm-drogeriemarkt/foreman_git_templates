@@ -1,29 +1,24 @@
 # frozen_string_literal: true
 
-require 'zlib'
-require 'rubygems/package'
-
 module ForemanGitTemplates
   class RepositoryReader
-    def initialize(tempfile)
-      @tempfile = tempfile
+    def initialize(repository, file)
+      @repository = repository
+      @file = file
     end
 
-    def read(filepath)
-      reader.rewind
-      reader.each { |e| break e.read if e.full_name.end_with?(filepath) }
+    def call
+      Tar.untar(repository) do |tar|
+        return tar.each { |e| break e.read if e.full_name.end_with?(file) }
+      end
+    end
+
+    def self.call(repository, file)
+      new(repository, file).call
     end
 
     private
 
-    attr_reader :tempfile
-
-    def reader
-      @reader ||= begin
-        file = File.open(tempfile, 'rb')
-        gz = Zlib::GzipReader.wrap(file)
-        Gem::Package::TarReader.new(gz)
-      end
-    end
+    attr_reader :repository, :file
   end
 end

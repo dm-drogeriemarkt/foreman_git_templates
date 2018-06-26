@@ -4,20 +4,20 @@ require 'down'
 
 module ForemanGitTemplates
   class RepositoryFetcher
-    def initialize(repo_url)
-      @repo_url = repo_url
+    def initialize(repository_url)
+      @repository_url = repository_url
     end
 
     def call
-      Down.download(repo_url)
+      Down.download(repository_url).path
     end
 
-    def self.call(repo_url)
-      new(repo_url).call
+    def self.call(repository_url)
+      new(repository_url).call
     end
 
     private
 
-    attr_reader :repo_url
+    attr_reader :repository_url
   end
 end
