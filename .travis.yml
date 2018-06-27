@@ -17,7 +17,6 @@ install:
 script:
   - cd ../${FOREMAN_PLUGIN_NAME}
   - bundle exec rubocop
-  - node ./node_modules/.bin/eslint . app/**/*.js
   - cd ../foreman
   - bundle exec rake test:${FOREMAN_PLUGIN_NAME}
 env:

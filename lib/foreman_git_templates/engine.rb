@@ -19,24 +19,6 @@ module ForemanGitTemplates
     initializer 'foreman_git_templates.register_plugin', before: :finisher_hook do |_app|
       Foreman::Plugin.register :foreman_git_templates do
         requires_foreman '>= 1.16'
-
-        # Add permissions
-        security_block :foreman_git_templates do
-          permission :view_foreman_git_templates, 'foreman_git_templates/hosts': [:new_action]
-        end
-
-        # Add a new role called 'Discovery' if it doesn't exist
-        role 'ForemanGitTemplates', [:view_foreman_git_templates]
-
-        # add menu entry
-        menu :top_menu, :template,
-             url_hash: { controller: :'foreman_git_templates/hosts', action: :new_action },
-             caption: 'ForemanGitTemplates',
-             parent: :hosts_menu,
-             after: :hosts
-
-        # add dashboard widget
-        widget 'foreman_git_templates_widget', name: N_('Foreman plugin template widget'), sizex: 4, sizey: 1
       end
     end
 
