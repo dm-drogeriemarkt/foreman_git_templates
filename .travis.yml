@@ -1,8 +1,8 @@
 language: ruby
 rvm:
   - 2.3
-gemfile: foreman/Gemfile
 install:
+  - unset BUNDLE_GEMFILE
   - cd ..
   - git clone https://github.com/theforeman/foreman.git -b ${FOREMAN_CORE_BRANCH} --depth 1
   - cd ${FOREMAN_PLUGIN_NAME}
