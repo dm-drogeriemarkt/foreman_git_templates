@@ -17,10 +17,11 @@ class UnattendedControllerTest < ActionController::TestCase
   end
 
   test 'should render template from repository' do
+    assert_not_nil @host.host_params['template_url']
     get :host_template, params: { kind: 'provision', spoof: @host.ip }, session: set_session_user
 
     assert_response :success
     # template content: "<%= @host.name %>"
-    assert_equal response.body.strip, @host.name
+    assert_equal @host.name, response.body.strip
   end
 end

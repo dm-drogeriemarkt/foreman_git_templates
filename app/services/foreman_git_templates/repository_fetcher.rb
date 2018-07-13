@@ -10,6 +10,10 @@ module ForemanGitTemplates
 
     def call
       Down.download(repository_url).path
+    rescue Down::ResponseError => e
+      raise CannotFetchRepository, "Cannot fetch repository from #{repository_url}. Response code: #{e.response.code}"
+    rescue Down::Error => e
+      raise CannotFetchRepository, "Cannot fetch repository from #{repository_url}, #{e.message}"
     end
 
     def self.call(repository_url)
@@ -17,6 +21,8 @@ module ForemanGitTemplates
     end
 
     private
+
+    class CannotFetchRepository < StandardError; end
 
     attr_reader :repository_url
   end

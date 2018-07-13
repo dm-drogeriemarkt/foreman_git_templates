@@ -15,4 +15,23 @@ class RepositoryFetcherTest < ActiveSupport::TestCase
       assert File.exist?(file_path)
     end
   end
+
+  test 'should raise exception when Down::ResponseError' do
+    url = 'http://api.com/repository'
+    stub_request(:get, url).to_return(status: 404)
+
+    msg = 'Response code: 404'
+    assert_raises_with_message(ForemanGitTemplates::RepositoryFetcher::CannotFetchRepository, msg) do
+      ForemanGitTemplates::RepositoryFetcher.call(url)
+    end
+  end
+
+  test 'should raise exception when Down::Error' do
+    url = 'incorrect_url'
+
+    msg = 'URL scheme needs to be http or https'
+    assert_raises_with_message(ForemanGitTemplates::RepositoryFetcher::CannotFetchRepository, msg) do
+      ForemanGitTemplates::RepositoryFetcher.call(url)
+    end
+  end
 end

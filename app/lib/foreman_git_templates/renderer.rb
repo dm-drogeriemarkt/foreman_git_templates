@@ -6,7 +6,8 @@ module ForemanGitTemplates
       source = subjects[:source]
       host = subjects[:host]
 
-      if !source && (template_url = template_url(host))
+      template_url = !source && template_url(host)
+      if template_url
         source = ForemanGitTemplates::Renderer::Source::Repository.new(template, template_url)
         super(subjects: subjects.merge(source: source),
               params: params, variables: variables)
