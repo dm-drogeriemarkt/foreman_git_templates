@@ -9,7 +9,7 @@ module ForemanGitTemplates
 
     initializer 'foreman_git_templates.register_plugin', before: :finisher_hook do |_app|
       Foreman::Plugin.register :foreman_git_templates do
-        requires_foreman '>= 1.19'
+        requires_foreman '>= 1.20'
       end
     end
 

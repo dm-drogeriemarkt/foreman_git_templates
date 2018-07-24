@@ -2,15 +2,10 @@
 
 module ForemanGitTemplates
   module Renderer
-    def render_template(template: nil, subjects: {}, params: {}, variables: {})
-      source = subjects[:source]
-      host = subjects[:host]
-
-      template_url = !source && template_url(host)
+    def get_source(klass: Foreman::Renderer::Source::Database, template:, **args)
+      template_url = template_url(args[:host])
       if template_url
-        source = ForemanGitTemplates::Renderer::Source::Repository.new(template, template_url)
-        super(subjects: subjects.merge(source: source),
-              params: params, variables: variables)
+        ForemanGitTemplates::Renderer::Source::Repository.new(template, template_url)
       else
         super
       end
