@@ -2,23 +2,36 @@
 
 module ForemanGitTemplates
   class RepositoryReader
-    def initialize(repository, file)
-      @repository = repository
+    def initialize(repository_path, file)
+      @repository_path = repository_path
       @file = file
     end
 
     def call
-      Tar.untar(repository) do |tar|
-        return tar.each { |e| break e.read if e.full_name.end_with?(file) }
-      end
+      raise FileUnreadableError, "Cannot read #{file} from repository" if content.nil?
+      content
     end
 
-    def self.call(repository, file)
-      new(repository, file).call
+    def self.call(repository_path, file)
+      new(repository_path, file).call
     end
 
     private
 
-    attr_reader :repository, :file
+    class RepositoryReaderError < StandardError; end
+    class RepositoryUnreadableError < RepositoryReaderError; end
+    class FileUnreadableError < RepositoryReaderError; end
+
+    attr_reader :repository_path, :file
+
+    def content
+      @content ||= begin
+        Tar.untar(repository_path) do |tar|
+          return tar.each { |e| break e.read if e.full_name.downcase.end_with?(file.downcase) }
+        end
+      rescue Errno::ENOENT
+        raise RepositoryUnreadableError, "Cannot read repository from #{repository_path}"
+      end
+    end
   end
 end

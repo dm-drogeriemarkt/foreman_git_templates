@@ -4,37 +4,21 @@ module ForemanGitTemplates
   class Engine < ::Rails::Engine
     engine_name 'foreman_git_templates'
 
-    config.autoload_paths += Dir["#{config.root}/app/controllers/concerns"]
-    config.autoload_paths += Dir["#{config.root}/app/helpers/concerns"]
-    config.autoload_paths += Dir["#{config.root}/app/models/concerns"]
-    config.autoload_paths += Dir["#{config.root}/app/overrides"]
-
-    # Add any db migrations
-    initializer 'foreman_git_templates.load_app_instance_data' do |app|
-      ForemanGitTemplates::Engine.paths['db/migrate'].existent.each do |path|
-        app.config.paths['db/migrate'] << path
-      end
-    end
+    config.autoload_paths += Dir["#{config.root}/app/lib"]
+    config.autoload_paths += Dir["#{config.root}/app/services"]
 
     initializer 'foreman_git_templates.register_plugin', before: :finisher_hook do |_app|
       Foreman::Plugin.register :foreman_git_templates do
-        requires_foreman '>= 1.16'
+        requires_foreman '>= 1.20'
       end
     end
 
     # Include concerns in this config.to_prepare block
     config.to_prepare do
       begin
-        Host::Managed.send(:include, ForemanGitTemplates::HostExtensions)
-        HostsHelper.send(:include, ForemanGitTemplates::HostsHelperExtensions)
+        Foreman::Renderer.singleton_class.prepend(ForemanGitTemplates::Renderer)
       rescue StandardError => e
         Rails.logger.warn "ForemanGitTemplates: skipping engine hook (#{e})"
-      end
-    end
-
-    rake_tasks do
-      Rake::Task['db:seed'].enhance do
-        ForemanGitTemplates::Engine.load_seed
       end
     end
 
