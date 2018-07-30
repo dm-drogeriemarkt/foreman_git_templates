@@ -18,25 +18,25 @@ class RepositoryReaderTest < ActiveSupport::TestCase
     end
   end
 
-  test 'should raise exception when repository does not exist' do
+  test 'should raise RepositoryUnreadableError when repository does not exist' do
     Dir.mktmpdir do |dir|
       repository_path = "#{dir}/repo.tar.gz"
 
       msg = "Cannot read repository from #{repository_path}"
-      assert_raises_with_message(ForemanGitTemplates::RepositoryReader::CannotReadRepository, msg) do
+      assert_raises_with_message(ForemanGitTemplates::RepositoryReader::RepositoryUnreadableError, msg) do
         ForemanGitTemplates::RepositoryReader.call(repository_path, 'file.erb')
       end
     end
   end
 
-  test 'should raise exception when file does not exist' do
+  test 'should raise FileUnreadableError when file does not exist' do
     Dir.mktmpdir do |dir|
       repository_path = "#{dir}/repo.tar.gz"
       filename = 'file.erb'
       ForemanGitTemplates::Tar.tar(repository_path)
 
       msg = "Cannot read #{filename} from repository"
-      assert_raises_with_message(ForemanGitTemplates::RepositoryReader::CannotReadFile, msg) do
+      assert_raises_with_message(ForemanGitTemplates::RepositoryReader::FileUnreadableError, msg) do
         ForemanGitTemplates::RepositoryReader.call(repository_path, filename)
       end
     end

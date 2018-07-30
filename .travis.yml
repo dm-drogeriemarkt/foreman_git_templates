@@ -24,7 +24,7 @@ env:
     - TESTOPTS=-v
     - FOREMAN_PLUGIN_NAME=foreman_git_templates
   matrix:
-    - FOREMAN_REPOSITORY=https://github.com/iRonins/foreman.git FOREMAN_BRANCH=22529-refactor-template-rendering
+    - FOREMAN_REPOSITORY=https://github.com/theforeman/foreman.git FOREMAN_BRANCH=develop
 addons:
   apt:
     packages:

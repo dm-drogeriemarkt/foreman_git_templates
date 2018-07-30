@@ -8,7 +8,7 @@ module ForemanGitTemplates
     end
 
     def call
-      raise CannotReadFile, "Cannot read #{file} from repository" if content.nil?
+      raise FileUnreadableError, "Cannot read #{file} from repository" if content.nil?
       content
     end
 
@@ -19,8 +19,8 @@ module ForemanGitTemplates
     private
 
     class RepositoryReaderError < StandardError; end
-    class CannotReadRepository < RepositoryReaderError; end
-    class CannotReadFile < RepositoryReaderError; end
+    class RepositoryUnreadableError < RepositoryReaderError; end
+    class FileUnreadableError < RepositoryReaderError; end
 
     attr_reader :repository_path, :file
 
@@ -30,7 +30,7 @@ module ForemanGitTemplates
           return tar.each { |e| break e.read if e.full_name.downcase.end_with?(file.downcase) }
         end
       rescue Errno::ENOENT
-        raise CannotReadRepository, "Cannot read repository from #{repository_path}"
+        raise RepositoryUnreadableError, "Cannot read repository from #{repository_path}"
       end
     end
   end
