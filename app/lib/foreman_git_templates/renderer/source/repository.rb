@@ -13,6 +13,10 @@ module ForemanGitTemplates
           @content ||= ForemanGitTemplates::RepositoryReader.call(repository_path, filename)
         end
 
+        def find_snippet(name)
+          Template.new(name: name)
+        end
+
         private
 
         attr_reader :template_url
@@ -22,7 +26,7 @@ module ForemanGitTemplates
         end
 
         def filename
-          @filename ||= "#{name}.erb".tr(' ', '_')
+          @filename ||= name.tr(' ', '_')
         end
       end
     end

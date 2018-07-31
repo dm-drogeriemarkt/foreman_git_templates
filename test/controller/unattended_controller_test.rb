@@ -19,11 +19,10 @@ class UnattendedControllerTest < ActionController::TestCase
 
     Dir.mktmpdir do |dir|
       kind = 'provision'
-      template = @host.provisioning_template(kind: kind)
 
       repository_path = "#{dir}/repo.tar.gz"
       ForemanGitTemplates::Tar.tar(repository_path) do |tar|
-        tar.add_file_simple("templates/#{kind}/#{template.name}.erb", 644, @host.name.length) { |io| io.write(@host.name) }
+        tar.add_file_simple("templates/#{kind}/whatever.erb", 644, @host.name.length) { |io| io.write(@host.name) }
       end
 
       stub_request(:get, @host.host_params['template_url'])
@@ -40,15 +39,14 @@ class UnattendedControllerTest < ActionController::TestCase
 
     Dir.mktmpdir do |dir|
       kind = 'PXELinux'
-      template = @host.provisioning_template(kind: kind)
-      snippet = FactoryBot.create(:provisioning_template, :snippet)
-      template_content = "<%= snippet('#{snippet.name}', variables: { foo: 'bar' }) %>"
+      snippet_name = 'MySnippet'
       snippet_content = 'foo: <%= @foo %>'
+      template_content = "<%= snippet('#{snippet_name}', variables: { foo: 'bar' }) %>"
 
       repository_path = "#{dir}/repo.tar.gz"
       ForemanGitTemplates::Tar.tar(repository_path) do |tar|
-        tar.add_file_simple("templates/#{kind}/#{template.name}.erb", 644, template_content.length) { |io| io.write(template_content) }
-        tar.add_file_simple("templates/snippet/#{snippet.name}.erb", 644, snippet_content.length) { |io| io.write(snippet_content) }
+        tar.add_file_simple("templates/#{kind}/whatever.erb", 644, template_content.length) { |io| io.write(template_content) }
+        tar.add_file_simple("templates/snippet/#{snippet_name}.erb", 644, snippet_content.length) { |io| io.write(snippet_content) }
       end
 
       stub_request(:get, @host.host_params['template_url'])
