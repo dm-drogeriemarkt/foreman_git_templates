@@ -27,7 +27,7 @@ module ForemanGitTemplates
     def content
       @content ||= begin
         Tar.untar(repository_path) do |tar|
-          return tar.each { |e| break e.read if e.full_name.downcase.end_with?(file.downcase) }
+          return tar.each { |e| break e.read if e.full_name.downcase.include?(file.downcase) }
         end
       rescue Errno::ENOENT
         raise RepositoryUnreadableError, "Cannot read repository from #{repository_path}"
