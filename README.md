@@ -9,7 +9,7 @@ for how to install Foreman plugins.
 
 ## Usage
 
-Repositories are fetched as a tarball files and must have a specific file structure. Only one template for template kind is supported but multiple snippets, eg.
+Repositories are fetched as tarball files and must have a specific file structure. Only one template for template kind is supported however multiple snippets are supported, for example:
 
 ```
 .
