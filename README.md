@@ -27,7 +27,7 @@ In order to use templates from the repository you have to set `template_url` hos
 
 ![Host Parameters](./doc/images/host_parameters.png)
 
-From now the template content for this host will be fetched from the repository. To test this open `/unattended/provision?spoof=<host_ip>`. Template from `provision` directory should be rendered.
+From now the template content for this host will be fetched from the repository. To test this open `/unattended/provision?spoof=<host_ip>`. The template stored in the `provision` directory should be rendered.
 
 ### Troubleshooting
 
