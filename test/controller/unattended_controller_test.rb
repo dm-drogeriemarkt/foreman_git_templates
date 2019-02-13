@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require 'test_plugin_helper'
 
 class UnattendedControllerTest < ActionController::TestCase
   setup do
