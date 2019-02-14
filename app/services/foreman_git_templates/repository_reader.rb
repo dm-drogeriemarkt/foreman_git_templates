@@ -27,11 +27,15 @@ module ForemanGitTemplates
     def content
       @content ||= begin
         Tar.untar(repository_path) do |tar|
-          return tar.each { |e| break e.read if e.file? && e.full_name.downcase.include?(file.downcase) }
+          return tar.each { |entry| break entry.read if entry.file? && matched_with_file_or_directory?(entry.full_name) }
         end
       rescue Errno::ENOENT
         raise RepositoryUnreadableError, "Cannot read repository from #{repository_path}"
       end
+    end
+
+    def matched_with_file_or_directory?(path)
+      path.downcase.split('/').map { |e| e.chomp('.erb') }.include?(file.downcase)
     end
   end
 end

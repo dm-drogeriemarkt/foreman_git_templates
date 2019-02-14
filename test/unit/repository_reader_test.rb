@@ -14,7 +14,7 @@ class RepositoryReaderTest < ActiveSupport::TestCase
       end
 
       result = ForemanGitTemplates::RepositoryReader.call(repository_path, file_name)
-      assert result.include?(file_content)
+      assert_equal file_content, result
     end
   end
 
@@ -24,14 +24,15 @@ class RepositoryReaderTest < ActiveSupport::TestCase
       dir_name = 'provision'
       file_name = 'my_template.erb'
       file_content = 'template'
+      another_file_content = 'blah'
 
       ForemanGitTemplates::Tar.tar(repository_path) do |tar|
-        tar.mkdir(dir_name, 644)
+        tar.add_file_simple("#{dir_name}_copy/whatever.erb", 644, another_file_content.length) { |io| io.write(another_file_content) }
         tar.add_file_simple("#{dir_name}/#{file_name}", 644, file_content.length) { |io| io.write(file_content) }
       end
 
       result = ForemanGitTemplates::RepositoryReader.call(repository_path, dir_name)
-      assert result.include?(file_content)
+      assert_equal file_content, result
     end
   end
 
