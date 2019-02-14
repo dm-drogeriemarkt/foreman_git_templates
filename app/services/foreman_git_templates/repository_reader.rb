@@ -8,7 +8,7 @@ module ForemanGitTemplates
     end
 
     def call
-      raise FileUnreadableError, "Cannot read #{file} from repository" if content.nil?
+      raise MissingFileError, "The #{file} file is missing" if content.nil?
       content
     end
 
@@ -21,17 +21,22 @@ module ForemanGitTemplates
     class RepositoryReaderError < StandardError; end
     class RepositoryUnreadableError < RepositoryReaderError; end
     class FileUnreadableError < RepositoryReaderError; end
+    class MissingFileError < FileUnreadableError; end
+    class EmptyFileError < FileUnreadableError; end
 
     attr_reader :repository_path, :file
 
     def content
-      @content ||= begin
-        Tar.untar(repository_path) do |tar|
-          return tar.each { |entry| break entry.read if entry.file? && matched_with_file_or_directory?(entry.full_name) }
+      @content ||= Tar.untar(repository_path) do |tar|
+        return tar.each do |entry|
+          next if !entry.file? || !matched_with_file_or_directory?(entry.full_name)
+          content = entry.read
+          raise EmptyFileError, "The #{file} file is empty" if content.nil?
+          break content
         end
-      rescue Errno::ENOENT
-        raise RepositoryUnreadableError, "Cannot read repository from #{repository_path}"
       end
+    rescue Errno::ENOENT
+      raise RepositoryUnreadableError, "Cannot read repository from #{repository_path}"
     end
 
     def matched_with_file_or_directory?(path)

@@ -40,22 +40,36 @@ class RepositoryReaderTest < ActiveSupport::TestCase
     Dir.mktmpdir do |dir|
       repository_path = "#{dir}/repo.tar.gz"
 
-      msg = "Cannot read repository from #{repository_path}"
-      assert_raises_with_message(ForemanGitTemplates::RepositoryReader::RepositoryUnreadableError, msg) do
-        ForemanGitTemplates::RepositoryReader.call(repository_path, 'file.erb')
+      assert_raises(ForemanGitTemplates::RepositoryReader::RepositoryUnreadableError) do
+        ForemanGitTemplates::RepositoryReader.call(repository_path, 'file')
       end
     end
   end
 
-  test 'should raise FileUnreadableError when file does not exist' do
+  test 'should raise MissingFileError when file does not exist' do
     Dir.mktmpdir do |dir|
       repository_path = "#{dir}/repo.tar.gz"
       filename = 'file.erb'
       ForemanGitTemplates::Tar.tar(repository_path)
 
-      msg = "Cannot read #{filename} from repository"
-      assert_raises_with_message(ForemanGitTemplates::RepositoryReader::FileUnreadableError, msg) do
+      assert_raises(ForemanGitTemplates::RepositoryReader::MissingFileError) do
         ForemanGitTemplates::RepositoryReader.call(repository_path, filename)
+      end
+    end
+  end
+
+  test 'should raise EmptyFileError when file is empty' do
+    Dir.mktmpdir do |dir|
+      repository_path = "#{dir}/repo.tar.gz"
+      dir_name = 'provision'
+      file_content = ''
+
+      ForemanGitTemplates::Tar.tar(repository_path) do |tar|
+        tar.add_file_simple("#{dir_name}/whatever.erb", 644, file_content.length) { |io| io.write(file_content) }
+      end
+
+      assert_raises(ForemanGitTemplates::RepositoryReader::EmptyFileError) do
+        ForemanGitTemplates::RepositoryReader.call(repository_path, dir_name)
       end
     end
   end

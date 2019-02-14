@@ -15,12 +15,14 @@ module ForemanGitTemplates
         def available_template_kinds(provisioning = nil)
           return super unless host_params['template_url']
 
-          repository_path = ForemanGitTemplates::RepositoryFetcher.call(host_params['template_url'])
-
-          kinds = template_kinds(provisioning)
-          kinds.map do |kind|
-            content = ForemanGitTemplates::RepositoryReader.call(repository_path, kind.name) rescue nil
-            Template.new(name: kind.name) if content
+          repository_path = RepositoryFetcher.call(host_params['template_url'])
+          template_kinds(provisioning).map do |kind|
+            begin
+              RepositoryReader.call(repository_path, kind.name)
+              Template.new(name: kind.name)
+            rescue RepositoryReader::FileUnreadableError # file is missing or empty
+              next
+            end
           end.compact
         end
       end
