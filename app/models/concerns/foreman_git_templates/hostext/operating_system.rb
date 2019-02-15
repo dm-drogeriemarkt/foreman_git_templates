@@ -17,12 +17,10 @@ module ForemanGitTemplates
 
           repository_path = RepositoryFetcher.call(host_params['template_url'])
           template_kinds(provisioning).map do |kind|
-            begin
-              RepositoryReader.call(repository_path, kind.name)
-              Template.new(name: kind.name)
-            rescue RepositoryReader::FileUnreadableError # file is missing or empty
-              next
-            end
+            RepositoryReader.call(repository_path, kind.name)
+            Template.new(name: kind.name)
+          rescue RepositoryReader::FileUnreadableError # file is missing or empty
+            next
           end.compact
         end
       end
