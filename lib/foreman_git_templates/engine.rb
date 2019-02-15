@@ -15,12 +15,10 @@ module ForemanGitTemplates
 
     # Include concerns in this config.to_prepare block
     config.to_prepare do
-      begin
-        Foreman::Renderer.singleton_class.prepend(ForemanGitTemplates::Renderer)
-        Host::Managed.include(ForemanGitTemplates::Hostext::OperatingSystem)
-      rescue StandardError => e
-        Rails.logger.warn "ForemanGitTemplates: skipping engine hook (#{e})"
-      end
+      Foreman::Renderer.singleton_class.prepend(ForemanGitTemplates::Renderer)
+      Host::Managed.include(ForemanGitTemplates::Hostext::OperatingSystem)
+    rescue StandardError => e
+      Rails.logger.warn "ForemanGitTemplates: skipping engine hook (#{e})"
     end
 
     initializer 'foreman_git_templates.register_gettext', after: :load_config_initializers do |_app|
