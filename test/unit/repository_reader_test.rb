@@ -9,7 +9,7 @@ class RepositoryReaderTest < ActiveSupport::TestCase
       file_name = 'README.md'
       file_content = 'Hello'
 
-      ForemanGitTemplates::Tar.tar(repository_path) do |tar|
+      build_repository repository_path do |tar|
         tar.add_file_simple(file_name, 644, file_content.length) { |io| io.write(file_content) }
       end
 
@@ -26,7 +26,7 @@ class RepositoryReaderTest < ActiveSupport::TestCase
       file_content = 'template'
       another_file_content = 'blah'
 
-      ForemanGitTemplates::Tar.tar(repository_path) do |tar|
+      build_repository repository_path do |tar|
         tar.add_file_simple("#{dir_name}_copy/whatever.erb", 644, another_file_content.length) { |io| io.write(another_file_content) }
         tar.add_file_simple("#{dir_name}/#{file_name}", 644, file_content.length) { |io| io.write(file_content) }
       end
@@ -50,7 +50,7 @@ class RepositoryReaderTest < ActiveSupport::TestCase
     Dir.mktmpdir do |dir|
       repository_path = "#{dir}/repo.tar.gz"
       filename = 'file.erb'
-      ForemanGitTemplates::Tar.tar(repository_path)
+      build_repository repository_path
 
       assert_raises(ForemanGitTemplates::RepositoryReader::MissingFileError) do
         ForemanGitTemplates::RepositoryReader.call(repository_path, filename)
@@ -64,7 +64,7 @@ class RepositoryReaderTest < ActiveSupport::TestCase
       dir_name = 'provision'
       file_content = ''
 
-      ForemanGitTemplates::Tar.tar(repository_path) do |tar|
+      build_repository repository_path do |tar|
         tar.add_file_simple("#{dir_name}/whatever.erb", 644, file_content.length) { |io| io.write(file_content) }
       end
 

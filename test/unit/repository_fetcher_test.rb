@@ -8,7 +8,7 @@ class RepositoryFetcherTest < ActiveSupport::TestCase
       url = 'http://api.com/repository'
       repository_path = "#{dir}/repo.tar.gz"
 
-      ForemanGitTemplates::Tar.tar(repository_path)
+      build_repository repository_path
       stub_request(:get, url).to_return(status: 200, body: repository_path)
       file_path = ForemanGitTemplates::RepositoryFetcher.call(url)
 
