@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.name        = 'foreman_git_templates'
   s.version     = ForemanGitTemplates::VERSION
   s.license     = 'GPL-3.0'
-  s.authors     = ['dm-drogerie markt GmbH & Co. KG']
+  s.authors     = ['dmTECH GmbH']
   s.email       = ['opensource@dm.de']
   s.homepage    = 'https://github.com/dm-drogeriemarkt-de/foreman_git_templates'
   s.summary     = 'Adds support for using templates from Git repositories'
