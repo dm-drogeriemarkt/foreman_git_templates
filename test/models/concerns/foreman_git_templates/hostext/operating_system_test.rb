@@ -12,7 +12,7 @@ module Hostext
 
         stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
           expected_kinds.each do |kind|
-            tar.add_file_simple("templates/#{kind}/whatever.erb", 644, host.name.length) { |io| io.write(host.name) }
+            tar.add_file_simple("templates/#{kind}/template.erb", 644, host.name.length) { |io| io.write(host.name) }
           end
         end
 

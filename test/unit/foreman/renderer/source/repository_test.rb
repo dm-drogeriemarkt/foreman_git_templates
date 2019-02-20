@@ -5,7 +5,7 @@ require 'test_plugin_helper'
 class RepositorySourceTest < ActiveSupport::TestCase
   setup do
     @template_url = 'http://template.pl'
-    @template = OpenStruct.new(name: 'MyTemplate')
+    @template = ForemanGitTemplates::MainRepositoryTemplate.new(name: 'MyTemplate')
     @subject = ForemanGitTemplates::Renderer::Source::Repository.new(@template, @template_url)
   end
 
@@ -15,9 +15,9 @@ class RepositorySourceTest < ActiveSupport::TestCase
       content = 'content'
 
       ForemanGitTemplates::RepositoryFetcher.expects(:call).once.with(@template_url).returns(repo_path)
-      ForemanGitTemplates::RepositoryReader.expects(:call).once.with(repo_path, @template.name).returns(content)
+      ForemanGitTemplates::RepositoryReader.expects(:call).once.with(repo_path, @template.path).returns(content)
 
-      assert_equal @subject.content, content
+      assert_equal content, @subject.content
     end
   end
 
@@ -26,9 +26,9 @@ class RepositorySourceTest < ActiveSupport::TestCase
       snippet_name = 'MySnippet'
       snippet = @subject.find_snippet(snippet_name)
 
-      assert snippet.is_a?(Template)
+      assert snippet.is_a?(ForemanGitTemplates::SnippetRepositoryTemplate)
       assert snippet.respond_to?(:render)
-      assert_equal snippet.name, snippet_name
+      assert_equal snippet_name, snippet.name
     end
   end
 end
