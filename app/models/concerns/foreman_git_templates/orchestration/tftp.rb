@@ -6,8 +6,10 @@ module ForemanGitTemplates
       extend ActiveSupport::Concern
 
       module Overrides
+        delegate :render_template, to: :host
+
         def generate_pxe_template(kind)
-          return super unless host_params['template_url']
+          return super unless host.params['template_url']
 
           template_klass = build? ? DefaultLocalBootRepositoryTemplate : MainRepositoryTemplate
           template = template_klass.new(name: kind)
