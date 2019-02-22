@@ -15,7 +15,7 @@ class UnattendedControllerTest < ActionController::TestCase
       kind = 'provision'
 
       stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-        tar.add_file_simple("templates/#{kind}/whatever.erb", 644, host.name.length) { |io| io.write(host.name) }
+        tar.add_file_simple("templates/#{kind}/template.erb", 644, host.name.length) { |io| io.write(host.name) }
       end
 
       get :host_template, params: { kind: kind, spoof: host.ip }, session: set_session_user
@@ -34,8 +34,8 @@ class UnattendedControllerTest < ActionController::TestCase
       template_content = "<%= snippet('#{snippet_name}', variables: { foo: 'bar' }) %>"
 
       stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-        tar.add_file_simple("templates/#{kind}/whatever.erb", 644, template_content.length) { |io| io.write(template_content) }
-        tar.add_file_simple("templates/snippet/#{snippet_name}.erb", 644, snippet_content.length) { |io| io.write(snippet_content) }
+        tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
+        tar.add_file_simple("templates/snippets/#{snippet_name}.erb", 644, snippet_content.length) { |io| io.write(snippet_content) }
       end
 
       get :host_template, params: { kind: kind, spoof: host.ip }, session: set_session_user
@@ -58,9 +58,9 @@ class UnattendedControllerTest < ActionController::TestCase
       template_content = "<%= snippet('#{snippet_name}', variables: { foo: 'foo' }) %>"
 
       stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-        tar.add_file_simple("templates/#{kind}/whatever.erb", 644, template_content.length) { |io| io.write(template_content) }
-        tar.add_file_simple("templates/snippet/#{snippet_name}.erb", 644, snippet_content.length) { |io| io.write(snippet_content) }
-        tar.add_file_simple("templates/snippet/#{nested_snippet_name}.erb", 644, nested_snippet_content.length) { |io| io.write(nested_snippet_content) }
+        tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
+        tar.add_file_simple("templates/snippets/#{snippet_name}.erb", 644, snippet_content.length) { |io| io.write(snippet_content) }
+        tar.add_file_simple("templates/snippets/#{nested_snippet_name}.erb", 644, nested_snippet_content.length) { |io| io.write(nested_snippet_content) }
       end
 
       get :host_template, params: { kind: kind, spoof: host.ip }, session: set_session_user

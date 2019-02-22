@@ -10,23 +10,20 @@ module ForemanGitTemplates
         end
 
         def content
-          @content ||= ForemanGitTemplates::RepositoryReader.call(repository_path, filename)
+          @content ||= ForemanGitTemplates::RepositoryReader.call(repository_path, template_path)
         end
 
         def find_snippet(name)
-          Template.new(name: name)
+          SnippetRepositoryTemplate.new(name: name)
         end
 
         private
 
         attr_reader :template_url
+        delegate :path, to: :template, prefix: true
 
         def repository_path
           @repository_path ||= ForemanGitTemplates::RepositoryFetcher.call(template_url)
-        end
-
-        def filename
-          @filename ||= name.tr(' ', '_')
         end
       end
     end
