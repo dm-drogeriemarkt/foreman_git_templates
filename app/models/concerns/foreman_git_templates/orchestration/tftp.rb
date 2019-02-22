@@ -11,7 +11,7 @@ module ForemanGitTemplates
         def generate_pxe_template(kind)
           return super unless host.params['template_url']
 
-          template_klass = build? ? DefaultLocalBootRepositoryTemplate : MainRepositoryTemplate
+          template_klass = build? ? MainRepositoryTemplate : DefaultLocalBootRepositoryTemplate
           template = template_klass.new(name: kind)
           render_template(template: template)
         end
