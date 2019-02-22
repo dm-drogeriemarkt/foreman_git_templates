@@ -10,16 +10,18 @@ See [Plugins install instructions](https://theforeman.org/plugins/) for how to i
 
 ## Usage
 
-Repositories are fetched as tarball files and must have a specific file structure. Only one template for template kind is supported however multiple snippets are supported, for example:
+Repositories are fetched as tarball files and must have a specific file structure. The root directory should be named `templates`. Inside the root directory there should be directories for template kinds and for snippets. Only one template for template kind is supported however multiple snippets are supported. Template file should be named `template.erb`. You can also define a default local boot template in the file named `default_local_boot.erb`.
 
 ```
 .
 └── templates
     ├── PXELinux
-    │   └── my_pxelinux_template.erb
+    │   ├── template.erb
+    │   └── default_local_boot.erb
     ├── provision
-    │   └── my_provision_template.erb
-    └── snippet
+    │   ├── template.erb
+    │   └── default_local_boot.erb
+    └── snippets
         ├── snippet_1.erb
         └── snippet_2.erb
 ```
