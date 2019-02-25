@@ -28,9 +28,11 @@ module ForemanGitTemplates
 
     def content
       @content ||= Tar.untar(repository_path) do |tar|
-        return tar.seek(file) do |entry|
-          raise EmptyFileError, "The #{entry.full_name} file is empty" if entry.header.size.zero?
-          entry.read
+        return tar.each do |entry|
+          next unless entry.file? && entry.full_name.end_with?(file)
+          break entry.read.tap do |entry_content|
+            raise EmptyFileError, "The #{file} file is empty" if entry_content.nil?
+          end
         end
       end
     rescue Errno::ENOENT

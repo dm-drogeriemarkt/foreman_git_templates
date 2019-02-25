@@ -18,6 +18,24 @@ class RepositoryReaderTest < ActiveSupport::TestCase
     end
   end
 
+  context 'with custom root directory' do
+    test 'should return file content' do
+      Dir.mktmpdir do |dir|
+        repository_path = "#{dir}/repo.tar.gz"
+        root_dir = 'root'
+        file_name = 'files/README.md'
+        file_content = 'Hello'
+
+        build_repository repository_path do |tar|
+          tar.add_file_simple("#{root_dir}/#{file_name}", 644, file_content.length) { |io| io.write(file_content) }
+        end
+
+        result = ForemanGitTemplates::RepositoryReader.call(repository_path, file_name)
+        assert_equal file_content, result
+      end
+    end
+  end
+
   test 'should raise RepositoryUnreadableError when repository does not exist' do
     Dir.mktmpdir do |dir|
       repository_path = "#{dir}/repo.tar.gz"
