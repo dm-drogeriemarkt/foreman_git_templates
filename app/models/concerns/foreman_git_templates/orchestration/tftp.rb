@@ -14,6 +14,10 @@ module ForemanGitTemplates
           template_klass = build? ? MainRepositoryTemplate : DefaultLocalBootRepositoryTemplate
           template = template_klass.new(name: kind)
           render_template(template: template)
+        rescue ForemanGitTemplates::RepositoryReader::MissingFileError => e
+          # re-raise the exception if we have a main template defined for this type
+          raise e if host.available_template_kinds.map(&:name).include?(kind)
+          nil
         end
       end
 
