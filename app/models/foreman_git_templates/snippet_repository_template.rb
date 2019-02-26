@@ -5,7 +5,7 @@ module ForemanGitTemplates
     self.table_name = 'templates'
 
     def path
-      "templates/snippets/#{name}.erb"
+      "templates/snippets/#{name.downcase.tr(' ', '_')}.erb"
     end
   end
 end
