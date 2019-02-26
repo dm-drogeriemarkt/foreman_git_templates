@@ -4,9 +4,9 @@ module ForemanGitTemplates
   module Renderer
     module Source
       class Repository < Foreman::Renderer::Source::Base
-        def initialize(template, template_url)
+        def initialize(template, repository_path)
           @template = template
-          @template_url = template_url
+          @repository_path = repository_path
         end
 
         def content
@@ -19,12 +19,8 @@ module ForemanGitTemplates
 
         private
 
-        attr_reader :template_url
+        attr_reader :repository_path
         delegate :path, to: :template, prefix: true
-
-        def repository_path
-          @repository_path ||= ForemanGitTemplates::RepositoryFetcher.call(template_url)
-        end
       end
     end
   end

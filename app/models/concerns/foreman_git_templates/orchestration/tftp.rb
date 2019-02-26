@@ -9,7 +9,7 @@ module ForemanGitTemplates
         delegate :render_template, to: :host
 
         def generate_pxe_template(kind)
-          return super unless host.params['template_url']
+          return super unless host.repository_path
 
           template_klass = build? ? MainRepositoryTemplate : DefaultLocalBootRepositoryTemplate
           template = template_klass.new(name: kind)
