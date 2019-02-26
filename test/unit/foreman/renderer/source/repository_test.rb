@@ -3,29 +3,24 @@
 require 'test_plugin_helper'
 
 class RepositorySourceTest < ActiveSupport::TestCase
-  setup do
-    @template_url = 'http://template.pl'
-    @template = ForemanGitTemplates::MainRepositoryTemplate.new(name: 'MyTemplate')
-    @subject = ForemanGitTemplates::Renderer::Source::Repository.new(@template, @template_url)
-  end
+  let(:repo_path) { '/tmp/repository.tar.gz' }
+  let(:template) { ForemanGitTemplates::MainRepositoryTemplate.new(name: 'MyTemplate') }
+  let(:subject) { ForemanGitTemplates::Renderer::Source::Repository.new(template, repo_path) }
 
   describe '#content' do
+    let(:content) { 'content' }
+
     test 'should return content' do
-      repo_path = '/tmp/repo.tar.gz'
-      content = 'content'
-
-      ForemanGitTemplates::RepositoryFetcher.expects(:call).once.with(@template_url).returns(repo_path)
-      ForemanGitTemplates::RepositoryReader.expects(:call).once.with(repo_path, @template.path).returns(content)
-
-      assert_equal content, @subject.content
+      ForemanGitTemplates::RepositoryReader.expects(:call).once.with(repo_path, template.path).returns(content)
+      assert_equal content, subject.content
     end
   end
 
   describe '#find_snippet' do
-    test 'should return snippet template' do
-      snippet_name = 'MySnippet'
-      snippet = @subject.find_snippet(snippet_name)
+    let(:snippet_name) { 'MySnippet' }
+    let(:snippet) { subject.find_snippet(snippet_name) }
 
+    test 'should return snippet template' do
       assert snippet.is_a?(ForemanGitTemplates::SnippetRepositoryTemplate)
       assert snippet.respond_to?(:render)
       assert_equal snippet_name, snippet.name

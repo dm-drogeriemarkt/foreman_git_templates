@@ -7,16 +7,16 @@ module ForemanGitTemplates
 
       module Overrides
         def provisioning_template(opts = {})
-          return super unless host_params['template_url']
+          return super unless repository_path
+
           kind = opts[:kind] || 'provision'
-          MainRepositoryTemplate.new(name: kind)
+          available_template_kinds.find { |template| template.name == kind }
         end
 
         def available_template_kinds(provisioning = nil)
-          return super unless host_params['template_url']
+          return super unless repository_path
 
-          repository_path = RepositoryFetcher.call(host_params['template_url'])
-          template_kinds(provisioning).map do |kind|
+          @available_template_kinds ||= template_kinds(provisioning).map do |kind|
             MainRepositoryTemplate.new(name: kind.name).tap do |template|
               RepositoryReader.call(repository_path, template.path)
             end
