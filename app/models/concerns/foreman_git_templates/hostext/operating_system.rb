@@ -15,7 +15,6 @@ module ForemanGitTemplates
         def available_template_kinds(provisioning = nil)
           return super unless host_params['template_url']
           @available_template_kinds ||= begin
-            repository_path = RepositoryFetcher.call(host_params['template_url'])
             template_kinds(provisioning).map do |kind|
               MainRepositoryTemplate.new(name: kind.name).tap do |template|
                 RepositoryReader.call(repository_path, template.path)
@@ -24,6 +23,10 @@ module ForemanGitTemplates
               next
             end.compact
           end
+        end
+
+        def repository_path
+          @repository_path ||= RepositoryFetcher.call(host_params['template_url'])
         end
       end
 
