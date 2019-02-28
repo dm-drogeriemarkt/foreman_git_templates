@@ -63,41 +63,7 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
   end
 
   describe '#setTFTP' do
-    let(:os) { FactoryBot.create(:operatingsystem, :with_media, :with_archs, :with_ptables, type: 'Redhat') }
-    let(:subnet) { FactoryBot.build(:subnet_ipv4, :tftp, :with_taxonomies) }
-    let(:interfaces) do
-      [
-        FactoryBot.build(:nic_bond,
-                         primary: true,
-                         identifier: 'bond0',
-                         attached_devices: ['eth0', 'eth1'],
-                         provision: true,
-                         domain: FactoryBot.build_stubbed(:domain),
-                         subnet: subnet,
-                         mac: nil,
-                         ip: subnet.network.sub(/0\Z/, '2')),
-        FactoryBot.build(:nic_interface,
-                         identifier: 'eth0',
-                         mac: '00:53:67:ab:dd:00'),
-        FactoryBot.build(:nic_interface,
-                         identifier: 'eth1',
-                         mac: '00:53:67:ab:dd:01')
-      ]
-    end
-    let(:host) do
-      FactoryBot.create(:host,
-                        :managed,
-                        :with_template_url,
-                        :with_tftp_orchestration,
-                        subnet: subnet,
-                        interfaces: interfaces,
-                        build: true,
-                        location: subnet.locations.first,
-                        organization: subnet.organizations.first,
-                        operatingsystem: os,
-                        ptable: os.ptables.first,
-                        medium: os.media.first)
-    end
+    let(:host) { FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url) }
 
     let(:kind) { 'PXELinux' }
     let(:template_content) { 'main template content' }
@@ -117,8 +83,7 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
             tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, default_local_boot_template_content.length) { |io| io.write(default_local_boot_template_content) }
           end
 
-          ProxyAPI::TFTP.any_instance.expects(:set).with(kind, '00:53:67:ab:dd:00', pxeconfig: template_content).once
-          ProxyAPI::TFTP.any_instance.expects(:set).with(kind, '00:53:67:ab:dd:01', pxeconfig: template_content).once
+          ProxyAPI::TFTP.any_instance.expects(:set).with(kind, host.interfaces.first.mac, pxeconfig: template_content).once
 
           host.provision_interface.send(:setTFTP, kind)
         end
@@ -139,8 +104,7 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
             tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, default_local_boot_template_content.length) { |io| io.write(default_local_boot_template_content) }
           end
 
-          ProxyAPI::TFTP.any_instance.expects(:set).with(kind, '00:53:67:ab:dd:00', pxeconfig: default_local_boot_template_content).once
-          ProxyAPI::TFTP.any_instance.expects(:set).with(kind, '00:53:67:ab:dd:01', pxeconfig: default_local_boot_template_content).once
+          ProxyAPI::TFTP.any_instance.expects(:set).with(kind, host.interfaces.first.mac, pxeconfig: default_local_boot_template_content).once
 
           host.provision_interface.send(:setTFTP, kind)
         end
