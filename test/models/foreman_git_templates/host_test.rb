@@ -20,7 +20,7 @@ module ForemanGitTemplates
 
         it 'returns nil' do
           ForemanGitTemplates::RepositoryFetcher.expects(:call).never
-          assert_equal nil, host.repository_path
+          assert_nil host.repository_path
         end
       end
     end

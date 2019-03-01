@@ -18,7 +18,7 @@ class UnattendedControllerTest < ActionController::TestCase
         tar.add_file_simple("templates/#{kind}/template.erb", 644, host.name.length) { |io| io.write(host.name) }
       end
 
-      get :host_template, params: { kind: kind, spoof: host.ip }, session: set_session_user
+      get :host_template, params: { kind: kind, hostname: host.name }, session: set_session_user
       assert_response :success
       assert_equal host.name, response.body.strip
     end
