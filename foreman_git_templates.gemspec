@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.license     = 'GPL-3.0'
   s.authors     = ['dmTECH GmbH']
   s.email       = ['opensource@dm.de']
-  s.homepage    = 'https://github.com/dm-drogeriemarkt-de/foreman_git_templates'
+  s.homepage    = 'https://github.com/dm-drogeriemarkt/foreman_git_templates'
   s.summary     = 'Adds support for using templates from Git repositories'
 
   s.files = Dir['{app,config,db,lib}/**/*'] + ['LICENSE', 'Rakefile', 'README.md']
