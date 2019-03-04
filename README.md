@@ -44,6 +44,14 @@ From now the template content for this host will be fetched from the repository.
 - `There was an error rendering the provision template: Cannot read <template> from repository`
   - check if there is requested template in the repository
 
+### Gitlab Repository Integration
+
+If you want to use a private repository hosted on a Gitlab instance to store your Foreman templates, you can use [Gitlab's repositories API](https://docs.gitlab.com/ee/api/repositories.html#get-file-archive) to construct the `template_url` parameter in Foreman. Create a dedicated Foreman user in Gitlab and set up a Personal Access Token that you can use in the `template_url`.
+
+```
+https://gitlab.example.com/api/v4/projects/${GITLAB_PROJECT_ID}/repository/archive.tar.gz?sha=${GITLAB_BRANCH_NAME}&private_token=${PERSONAL_ACCESS_TOKEN}
+```
+
 ## Contributing
 
 Fork and send a Pull Request. Thanks!
