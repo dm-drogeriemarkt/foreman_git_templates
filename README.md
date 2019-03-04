@@ -4,6 +4,12 @@
 
 This is a plugin for Foreman that adds support for using templates from Git repositories.
 
+## Compatibility
+
+| Foreman Version | Plugin Version |
+| --------------- | -------------- |
+| >= 1.20         | ~> 1.0         |
+
 ## Installation
 
 See [Plugins install instructions](https://theforeman.org/plugins/) for how to install Foreman plugins.
