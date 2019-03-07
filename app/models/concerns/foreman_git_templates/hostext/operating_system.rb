@@ -9,7 +9,7 @@ module ForemanGitTemplates
         def provisioning_template(opts = {})
           return super unless repository_path
 
-          kind = opts[:kind] || 'provision'
+          kind = opts[:kind].to_s || 'provision'
           available_template_kinds.find { |template| template.name == kind }
         end
 

@@ -62,8 +62,47 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
     end
   end
 
+  describe '#validate_tftp' do
+    let(:host) { FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, pxe_loader: 'PXELinux BIOS') }
+    let(:kind) { 'PXELinux' }
+    let(:template_content) { 'main template content' }
+    let(:default_local_boot_template_content) { 'default local boot template content' }
+
+    context 'host is in build mode' do
+      setup do
+        host.update(build: true)
+      end
+
+      it 'validates that the host is ready for tftp' do
+        Dir.mktmpdir do |dir|
+          stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
+            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
+            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, default_local_boot_template_content.length) { |io| io.write(default_local_boot_template_content) }
+          end
+
+          host.provision_interface.send(:validate_tftp)
+          assert_empty host.errors.messages
+        end
+      end
+    end
+
+    context 'host is not build mode' do
+      it 'validates that the host is ready for tftp' do
+        Dir.mktmpdir do |dir|
+          stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
+            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
+            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, default_local_boot_template_content.length) { |io| io.write(default_local_boot_template_content) }
+          end
+
+          host.provision_interface.send(:validate_tftp)
+          assert_empty host.errors.messages
+        end
+      end
+    end
+  end
+
   describe '#setTFTP' do
-    let(:host) { FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url) }
+    let(:host) { FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, pxe_loader: 'PXELinux BIOS') }
 
     let(:kind) { 'PXELinux' }
     let(:template_content) { 'main template content' }

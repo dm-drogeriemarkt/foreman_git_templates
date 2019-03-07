@@ -6,6 +6,28 @@ module Hostext
   class OperatingSystemTest < ActiveSupport::TestCase
     let(:host) { FactoryBot.create(:host, :managed, :with_template_url) }
 
+    describe '#provisioning_template' do
+      it 'finds all PXELinux template kinds' do
+        Dir.mktmpdir do |dir|
+          stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
+            tar.add_file_simple('templates/PXELinux/template.erb', 644, host.name.length) { |io| io.write(host.name) }
+          end
+
+          assert_equal 'PXELinux', host.provisioning_template(kind: 'PXELinux')&.name
+        end
+      end
+
+      it 'finds all PXELinux template kinds by symbol' do
+        Dir.mktmpdir do |dir|
+          stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
+            tar.add_file_simple('templates/PXELinux/template.erb', 644, host.name.length) { |io| io.write(host.name) }
+          end
+
+          assert_equal 'PXELinux', host.provisioning_template(kind: :PXELinux)&.name
+        end
+      end
+    end
+
     test 'available_template_kinds finds only templates that are defined in the repository' do
       Dir.mktmpdir do |dir|
         expected_kinds = ['PXEGrub', 'PXELinux', 'iPXE', 'PXEGrub2', 'provision']
