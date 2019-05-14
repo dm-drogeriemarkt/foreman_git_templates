@@ -6,6 +6,7 @@ module ForemanGitTemplates
 
     config.autoload_paths += Dir["#{config.root}/app/lib"]
     config.autoload_paths += Dir["#{config.root}/app/services"]
+    config.autoload_paths += Dir["#{config.root}/app/controllers/concerns"]
 
     initializer 'foreman_git_templates.register_plugin', before: :finisher_hook do |_app|
       Foreman::Plugin.register :foreman_git_templates do
@@ -19,6 +20,7 @@ module ForemanGitTemplates
       Host::Managed.include(ForemanGitTemplates::Hostext::OperatingSystem)
       Host::Managed.include(ForemanGitTemplates::HostExtensions)
       Nic::Managed.include(ForemanGitTemplates::Orchestration::TFTP)
+      UnattendedController.include(ForemanGitTemplates::UnattendedControllerExtensions)
     rescue StandardError => e
       Rails.logger.warn "ForemanGitTemplates: skipping engine hook (#{e})"
     end

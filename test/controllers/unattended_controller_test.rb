@@ -3,7 +3,7 @@
 require 'test_plugin_helper'
 
 class UnattendedControllerTest < ActionController::TestCase
-  let(:os) { FactoryBot.create(:operatingsystem, :with_archs, :with_ptables, type: 'Redhat') }
+  let(:os) { FactoryBot.create(:operatingsystem, :with_associations, type: 'Redhat') }
   let(:host) do
     FactoryBot.create(:host, :managed, :with_template_url, operatingsystem: os, ptable: os.ptables.first)
   end
@@ -66,6 +66,51 @@ class UnattendedControllerTest < ActionController::TestCase
       get :host_template, params: { kind: kind, hostname: host.name }, session: set_session_user
       assert_response :success
       assert_equal 'foo bar', response.body.strip
+    end
+  end
+
+  describe 'iPXE templates' do
+    context 'host not in build mode' do
+      test 'should render iPXE local boot template from repository' do
+        assert_not_nil host.params['template_url']
+
+        Dir.mktmpdir do |dir|
+          kind = 'iPXE'
+
+          stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
+            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, 5) { |io| io.write('local') }
+            tar.add_file_simple("templates/#{kind}/template.erb", 644, host.name.length) { |io| io.write(host.name) }
+          end
+
+          get :host_template, params: { kind: kind, hostname: host.name }, session: set_session_user
+          assert_response :success
+          assert_equal 'local', response.body.strip
+        end
+      end
+    end
+
+    context 'host in build mode' do
+      setup do
+        host.update!(build: true)
+      end
+
+      test 'should render iPXE template from repository' do
+        host.reload
+        assert_not_nil host.params['template_url']
+
+        Dir.mktmpdir do |dir|
+          kind = 'iPXE'
+
+          stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
+            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, 5) { |io| io.write('local') }
+            tar.add_file_simple("templates/#{kind}/template.erb", 644, host.name.length) { |io| io.write(host.name) }
+          end
+
+          get :host_template, params: { kind: kind, hostname: host.name }, session: set_session_user
+          assert_response :success
+          assert_equal host.name, response.body.strip
+        end
+      end
     end
   end
 end
