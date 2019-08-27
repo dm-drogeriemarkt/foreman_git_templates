@@ -9,7 +9,7 @@ module ForemanGitTemplates
     end
 
     def call
-      Down.download(repository_url).path
+      Down.download(repository_url)
     rescue Down::ResponseError => e
       raise RepositoryFetcherError, "Cannot fetch repository from #{repository_url}. Response code: #{e.response.code}"
     rescue Down::Error => e
