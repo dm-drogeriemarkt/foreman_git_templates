@@ -1,6 +1,8 @@
 language: ruby
 rvm:
   - 2.5
+before_script:
+  - ln -s /usr/lib/chromium-browser/chromedriver ~/bin/chromedriver
 install:
   - unset BUNDLE_GEMFILE
   - cd ..
@@ -9,16 +11,19 @@ install:
   - bundle install --jobs=3 --retry=3
   - npm install eslint
   - cd ../foreman
+  - npm install
   - echo "gemspec :path => '../${FOREMAN_PLUGIN_NAME}'" > bundler.d/${FOREMAN_PLUGIN_NAME}.local.rb
   - ln -s settings.yaml.test config/settings.yaml
   - ln -s database.yml.example config/database.yml
   - bundle install --jobs=3 --retry=3 --without journald development postgresql mysql2 console journald
+  - bundle exec rake webpack:compile
   - bundle exec rake db:migrate RAILS_ENV=test
 script:
   - cd ../${FOREMAN_PLUGIN_NAME}
   - bundle exec rubocop
   - cd ../foreman
   - bundle exec rake test:${FOREMAN_PLUGIN_NAME}
+  - bundle exec rake test
 env:
   global:
     - TESTOPTS=-v
@@ -26,6 +31,7 @@ env:
   matrix:
     - FOREMAN_REPOSITORY=https://github.com/theforeman/foreman.git FOREMAN_BRANCH=develop
 addons:
+  chrome: stable
   apt:
     packages:
     - nodejs
@@ -33,3 +39,4 @@ addons:
     - libsqlite3-dev
     - zlib1g-dev
     - libvirt-dev
+    - chromium-chromedriver
