@@ -25,5 +25,15 @@ module ForemanGitTemplates
         end
       end
     end
+
+    test 'host with invalid template_url can be saved' do
+      host = FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url)
+
+      ProxyAPI::TFTP.any_instance.stubs(:set).returns(true)
+      host.expects(:skip_orchestration?).at_least_once.returns(false)
+      stub_request(:get, host.params['template_url']).to_return(status: 404)
+
+      assert host.save
+    end
   end
 end
