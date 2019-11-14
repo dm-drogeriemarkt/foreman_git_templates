@@ -35,8 +35,9 @@ module ForemanGitTemplates
           end
         end
       end
-    rescue Errno::ENOENT
-      raise RepositoryUnreadableError, "Cannot read repository from #{repository_path}"
+    rescue Errno::ENOENT, Zlib::GzipFile::Error => e
+      Foreman::Logging.exception("GitTemplates: Cannot read repository from #{repository_path}", e)
+      raise RepositoryUnreadableError, _('Cannot read repository from %{repository_path}: %{error}') % { repository_path: repository_path, error: e.message }
     end
   end
 end

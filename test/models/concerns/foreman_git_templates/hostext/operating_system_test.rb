@@ -4,7 +4,7 @@ require 'test_plugin_helper'
 
 module Hostext
   class OperatingSystemTest < ActiveSupport::TestCase
-    let(:host) { FactoryBot.create(:host, :managed, :with_template_url) }
+    let(:host) { FactoryBot.create(:host, :managed, :with_template_url, build: true) }
 
     describe '#provisioning_template' do
       it 'finds all PXELinux template kinds' do

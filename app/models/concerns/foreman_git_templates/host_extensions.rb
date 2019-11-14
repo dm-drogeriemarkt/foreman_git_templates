@@ -2,6 +2,10 @@
 
 module ForemanGitTemplates
   module HostExtensions
+    def repository_klass
+      build? ? MainRepositoryTemplate : DefaultLocalBootRepositoryTemplate
+    end
+
     def repository_path
       return unless git_template_url
 

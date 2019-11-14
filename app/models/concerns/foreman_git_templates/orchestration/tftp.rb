@@ -9,15 +9,25 @@ module ForemanGitTemplates
         delegate :render_template, to: :host
 
         def generate_pxe_template(kind)
-          return super unless host.repository_path
+          return super unless host.params['template_url']
 
-          template_klass = build? ? MainRepositoryTemplate : DefaultLocalBootRepositoryTemplate
-          template = template_klass.new(name: kind)
+          template = host.repository_klass.new(name: kind)
           render_template(template: template)
-        rescue ForemanGitTemplates::RepositoryReader::MissingFileError => e
-          # re-raise the exception if we have a main template defined for this type
-          raise e if host.available_template_kinds.map(&:name).include?(kind)
+        rescue ForemanGitTemplates::RepositoryReader::MissingFileError
           nil
+        end
+
+        private
+
+        def validate_tftp
+          return super unless host.params['template_url']
+          return unless tftp? || tftp6?
+          return unless host.operatingsystem
+
+          pxe_kind = host.operatingsystem.pxe_loader_kind(host)
+          return unless pxe_kind && host.provisioning_template(kind: pxe_kind).nil?
+
+          failure _('No %{kind} template was found for host %{host}. Repository url: %{url}') % { kind: pxe_kind, host: host.name, url: host.params['template_url'] }
         end
       end
 

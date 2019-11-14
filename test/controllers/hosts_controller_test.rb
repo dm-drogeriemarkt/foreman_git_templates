@@ -3,7 +3,7 @@
 require 'test_plugin_helper'
 
 class HostsControllerTest < ActionController::TestCase
-  let(:host) { FactoryBot.create(:host, :managed, :with_template_url) }
+  let(:host) { FactoryBot.create(:host, :managed, :with_template_url, build: true) }
 
   describe '#templates' do
     it 'returns only templates that are defined in the archive' do
