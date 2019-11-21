@@ -2,6 +2,12 @@
 
 module ForemanGitTemplates
   module HostExtensions
+    extend ActiveSupport::Concern
+
+    included do
+      validates_associated :host_parameters
+    end
+
     def repository_klass
       build? ? MainRepositoryTemplate : DefaultLocalBootRepositoryTemplate
     end
