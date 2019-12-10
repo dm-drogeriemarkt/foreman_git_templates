@@ -17,8 +17,8 @@ module ForemanGitTemplates
           return super unless repository_path
 
           @available_template_kinds ||= template_kinds(provisioning).map do |kind|
-            MainRepositoryTemplate.new(name: kind.name).tap do |template|
-              RepositoryReader.call(repository_path, template.path)
+            repository_klass.new(name: kind.name).tap do |t|
+              t.template = RepositoryReader.call(repository_path, t.path)
             end
           rescue RepositoryReader::FileUnreadableError # file is missing or empty
             next

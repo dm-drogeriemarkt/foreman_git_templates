@@ -5,7 +5,7 @@ require 'test_plugin_helper'
 class UnattendedControllerTest < ActionController::TestCase
   let(:os) { FactoryBot.create(:operatingsystem, :with_associations, type: 'Redhat') }
   let(:host) do
-    FactoryBot.create(:host, :managed, :with_template_url, operatingsystem: os, ptable: os.ptables.first)
+    FactoryBot.create(:host, :managed, :with_template_url, build: true, operatingsystem: os, ptable: os.ptables.first)
   end
 
   test 'should render template from repository' do
@@ -70,6 +70,10 @@ class UnattendedControllerTest < ActionController::TestCase
   end
 
   describe 'iPXE templates' do
+    let(:host) do
+      FactoryBot.create(:host, :managed, :with_template_url, build: false, operatingsystem: os, ptable: os.ptables.first)
+    end
+
     context 'host not in build mode' do
       test 'should render iPXE local boot template from repository' do
         assert_not_nil host.params['template_url']

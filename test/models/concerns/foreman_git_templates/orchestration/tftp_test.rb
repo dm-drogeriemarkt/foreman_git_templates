@@ -15,10 +15,19 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
         Dir.mktmpdir do |dir|
           stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
             tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
-            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, default_local_boot_template_content.length) { |io| io.write(default_local_boot_template_content) }
           end
 
-          assert_equal template_content, host.generate_pxe_template('PXELinux')
+          assert_equal template_content, host.generate_pxe_template(kind)
+        end
+      end
+
+      context 'when corresponding default local boot template file is missing in the repo' do
+        it 'does not generate a pxe template' do
+          Dir.mktmpdir do |dir|
+            stub_repository host.params['template_url'], "#{dir}/repo.tar.gz"
+
+            assert_nil host.generate_pxe_template(kind)
+          end
         end
       end
     end
@@ -29,33 +38,19 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
       it 'renders default local boot template' do
         Dir.mktmpdir do |dir|
           stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
             tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, default_local_boot_template_content.length) { |io| io.write(default_local_boot_template_content) }
           end
 
-          assert_equal default_local_boot_template_content, host.generate_pxe_template('PXELinux')
+          assert_equal default_local_boot_template_content, host.generate_pxe_template(kind)
         end
       end
 
-      it 'does not generate a pxe template if the corresponding template file is missing in the repo' do
-        Dir.mktmpdir do |dir|
-          stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
-            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, default_local_boot_template_content.length) { |io| io.write(default_local_boot_template_content) }
-          end
+      context 'when corresponding default local boot template file is missing in the repo' do
+        it 'does not generate a pxe template' do
+          Dir.mktmpdir do |dir|
+            stub_repository host.params['template_url'], "#{dir}/repo.tar.gz"
 
-          assert_nil host.generate_pxe_template('PXEGrub2')
-        end
-      end
-
-      it 'raises an exception when generating a pxe template if the corresponding default local boot template file is missing in the repo' do
-        Dir.mktmpdir do |dir|
-          stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
-          end
-
-          assert_raises ForemanGitTemplates::RepositoryReader::MissingFileError do
-            host.generate_pxe_template('PXELinux')
+            assert_nil host.generate_pxe_template(kind)
           end
         end
       end
@@ -63,7 +58,7 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
   end
 
   describe '#validate_tftp' do
-    let(:host) { FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, pxe_loader: 'PXELinux BIOS') }
+    let(:host) { FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, build: false, pxe_loader: 'PXELinux BIOS') }
     let(:kind) { 'PXELinux' }
     let(:template_content) { 'main template content' }
     let(:default_local_boot_template_content) { 'default local boot template content' }

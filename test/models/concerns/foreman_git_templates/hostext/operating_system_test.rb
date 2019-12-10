@@ -4,7 +4,7 @@ require 'test_plugin_helper'
 
 module Hostext
   class OperatingSystemTest < ActiveSupport::TestCase
-    let(:host) { FactoryBot.create(:host, :managed, :with_template_url) }
+    let(:host) { FactoryBot.create(:host, :managed, :with_template_url, build: true) }
 
     describe '#provisioning_template' do
       it 'finds all PXELinux template kinds' do
@@ -13,7 +13,9 @@ module Hostext
             tar.add_file_simple('templates/PXELinux/template.erb', 644, host.name.length) { |io| io.write(host.name) }
           end
 
-          assert_equal 'PXELinux', host.provisioning_template(kind: 'PXELinux')&.name
+          actual = host.provisioning_template(kind: 'PXELinux')
+          assert_equal 'PXELinux', actual.name
+          assert_equal host.name, actual.template
         end
       end
 
@@ -23,7 +25,9 @@ module Hostext
             tar.add_file_simple('templates/PXELinux/template.erb', 644, host.name.length) { |io| io.write(host.name) }
           end
 
-          assert_equal 'PXELinux', host.provisioning_template(kind: :PXELinux)&.name
+          actual = host.provisioning_template(kind: :PXELinux)
+          assert_equal 'PXELinux', actual.name
+          assert_equal host.name, actual.template
         end
       end
     end

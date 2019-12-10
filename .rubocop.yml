@@ -11,8 +11,17 @@ Rails:
 Style/Documentation:
   Enabled: false
 
+Metrics/MethodLength:
+  Max: 15
+
 Metrics/LineLength:
   Max: 190
+
+Metrics/AbcSize:
+  Max: 25
+
+Metrics/CyclomaticComplexity:
+  Max: 8
 
 Style/WordArray:
   Enabled: false
@@ -25,6 +34,9 @@ Style/RegexpLiteral:
 
 Style/FormatStringToken:
   Enabled: false
+
+FormatString:
+  EnforcedStyle: percent
 
 Metrics/BlockLength:
   Exclude:
