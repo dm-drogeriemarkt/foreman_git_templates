@@ -1,3 +1,5 @@
+require: rubocop-rails
+
 AllCops:
   TargetRubyVersion: 2.5
   TargetRailsVersion: 5.1
@@ -45,3 +47,6 @@ Metrics/BlockLength:
 Metrics/ClassLength:
   Exclude:
     - 'test/**/*'
+
+Layout/RescueEnsureAlignment:
+  Enabled: false
