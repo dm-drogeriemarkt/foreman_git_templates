@@ -9,6 +9,7 @@ module ForemanGitTemplates
 
     def call
       raise MissingFileError, "The #{file} file is missing" if content.nil?
+
       content
     end
 
@@ -30,6 +31,7 @@ module ForemanGitTemplates
       @content ||= Tar.untar(repository_path) do |tar|
         return tar.each do |entry|
           next unless entry.file? && entry.full_name.end_with?(file)
+
           break entry.read.tap do |entry_content|
             raise EmptyFileError, "The #{file} file is empty" if entry_content.nil?
           end
