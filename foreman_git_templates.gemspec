@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.test_files = Dir['test/**/*']
 
   s.add_dependency 'down', '~> 4.5'
-  s.add_dependency 'rest-client', '~> 2.1'
+  s.add_dependency 'rest-client', '~> 2'
 
   s.add_development_dependency 'rdoc'
   s.add_development_dependency 'rubocop', '0.54.0'
