@@ -30,6 +30,7 @@ module ForemanGitTemplates
       HostParameter.include(ForemanGitTemplates::HostParameterExtensions)
       Nic::Managed.include(ForemanGitTemplates::Orchestration::TFTP)
       UnattendedController.include(ForemanGitTemplates::UnattendedControllerExtensions)
+      ::ApplicationHelper.include(ForemanGitTemplates::ApplicationHelper)
     rescue StandardError => e
       Rails.logger.warn "ForemanGitTemplates: skipping engine hook (#{e})"
     end
