@@ -65,6 +65,7 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
 
     context 'host is in build mode' do
       setup do
+        host.primary_interface.expects(:valid?).returns(true) if Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.0')
         host.update(build: true)
       end
 
@@ -105,6 +106,7 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
 
     context 'host is in build mode' do
       setup do
+        host.primary_interface.expects(:valid?).returns(true) if Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.0')
         host.update(build: true)
       end
 

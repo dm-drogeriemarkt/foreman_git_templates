@@ -34,12 +34,23 @@ module ForemanGitTemplates
       end
 
       context 'with valid template_url' do
+        setup do
+          ProxyAPI::TFTP.any_instance.expects(:set).returns(true)
+
+          if Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.0')
+            ProxyAPI::TFTP.any_instance.expects(:bootServer).returns('127.0.0.1')
+            ProxyAPI::DHCP.any_instance.expects(:set).returns(true)
+            ProxyAPI::DHCP.any_instance.expects(:record).with(host.subnet.network, host.dhcp_records.first.mac).returns(host.dhcp_records.first)
+            ProxyAPI::DHCP.any_instance.expects(:records_by_ip).with(host.subnet.network, host.provision_interface.ip).returns([host.dhcp_records.first])
+            ProxyAPI::DHCP.any_instance.expects(:delete).returns(true)
+          end
+        end
+
         context 'when host is in build mode' do
           let(:host) { FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, operatingsystem: os, build: true) }
 
           it 'updates the host' do
-            ProxyAPI::Resource.any_instance.stubs(:post).returns(true)
-            ProxyAPI::TFTP.any_instance.stubs(:fetch_boot_file).returns(true)
+            ProxyAPI::TFTP.any_instance.expects(:fetch_boot_file).twice.returns(true)
 
             Dir.mktmpdir do |dir|
               stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
@@ -56,8 +67,6 @@ module ForemanGitTemplates
           let(:host) { FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, operatingsystem: os, build: false) }
 
           it 'updates the host' do
-            ProxyAPI::TFTP.any_instance.stubs(:set).returns(true)
-
             Dir.mktmpdir do |dir|
               stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
                 tar.add_file_simple('templates/PXEGrub2/default_local_boot.erb', 644, host.name.length) { |io| io.write(host.name) }
@@ -73,6 +82,12 @@ module ForemanGitTemplates
       context 'with invalid template_url' do
         setup do
           stub_request(:get, host.params['template_url']).to_return(status: 404)
+
+          if Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.0')
+            ProxyAPI::TFTP.any_instance.expects(:bootServer).returns('127.0.0.1')
+            ProxyAPI::DHCP.any_instance.expects(:record).with(host.subnet.network, host.dhcp_records.first.mac).returns(host.dhcp_records.first)
+            ProxyAPI::DHCP.any_instance.expects(:records_by_ip).with(host.subnet.network, host.provision_interface.ip).returns([host.dhcp_records.first])
+          end
         end
 
         let(:expected_errors) { ["No PXEGrub2 template was found for host #{host.name}. Repository url: #{host.params['template_url']}"] }
