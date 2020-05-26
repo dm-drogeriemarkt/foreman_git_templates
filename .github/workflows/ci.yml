@@ -34,7 +34,10 @@ jobs:
         ruby-version: [2.5, 2.6]
         node-version: [10]
     steps:
-      - run: sudo apt-get install build-essential libcurl4-openssl-dev libvirt-dev ruby-libvirt zlib1g-dev libpq-dev
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential libcurl4-openssl-dev libvirt-dev ruby-libvirt zlib1g-dev libpq-dev
       - uses: actions/checkout@v2
         with:
           repository: theforeman/foreman
