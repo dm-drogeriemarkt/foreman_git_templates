@@ -20,7 +20,7 @@ module ForemanGitTemplates
         private
 
         def validate_tftp
-          return super unless host.params['template_url']
+          return super unless feasible_for_git_template_rendering?
           return unless tftp? || tftp6?
           return unless host.operatingsystem
 
@@ -28,6 +28,13 @@ module ForemanGitTemplates
           return unless pxe_kind && host.provisioning_template(kind: pxe_kind).nil?
 
           failure _('No %{kind} template was found for host %{host}. Repository url: %{url}') % { kind: pxe_kind, host: host.name, url: host.params['template_url'] }
+        end
+
+        def feasible_for_git_template_rendering?
+          return false unless host.is_a?(Host::Managed)
+          return false unless host.params['template_url']
+
+          true
         end
       end
 
