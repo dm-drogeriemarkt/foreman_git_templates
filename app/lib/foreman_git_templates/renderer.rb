@@ -4,7 +4,6 @@ module ForemanGitTemplates
   module Renderer
     REPOSITORY_SOURCE_CLASS = ForemanGitTemplates::Renderer::Source::Repository
 
-    # rubocop:disable Metrics/PerceivedComplexity
     def get_source(klass: nil, template:, **args)
       return super if klass && klass != REPOSITORY_SOURCE_CLASS
 
@@ -17,7 +16,6 @@ module ForemanGitTemplates
         super
       end
     end
-    # rubocop:enable Metrics/PerceivedComplexity
 
     private
 
