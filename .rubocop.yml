@@ -50,3 +50,6 @@ Metrics/ClassLength:
 
 Layout/RescueEnsureAlignment:
   Enabled: false
+
+Gemspec/RequiredRubyVersion:
+  Enabled: false
