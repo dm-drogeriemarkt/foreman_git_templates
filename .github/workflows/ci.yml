@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        foreman-core-branch: [1.20-stable, 1.21-stable, 1.22-stable, 1.23-stable, 1.24-stable, 2.0-stable, develop]
+        foreman-core-branch: [1.20-stable, 1.21-stable, 1.22-stable, 1.23-stable, 1.24-stable, 2.0-stable, 2.1-stable, 2.2-stable, develop]
         ruby-version: [2.5, 2.6]
         node-version: [10]
     steps:
@@ -53,11 +53,22 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version:  ${{ matrix.node-version }}
+      - name: Setup Bundler
+        run: |
+          gem install bundler
+          bundle config path vendor/bundle
+          bundle config set without journald development console mysql2 sqlite
+          echo "gem 'foreman_git_templates', path: './foreman_git_templates'" > bundler.d/foreman_git_templates.local.rb
+          bundle lock --update
+      - name: Cache gems
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
       - name: Setup Plugin
         run: |
-          echo "gem 'foreman_git_templates', path: './foreman_git_templates'" > bundler.d/foreman_git_templates.local.rb
-          gem install bundler
-          bundle config set without journald development console mysql2 sqlite
           bundle install --jobs=3 --retry=3
           bundle exec rake db:create
           bundle exec rake db:migrate
