@@ -28,6 +28,17 @@ module ForemanGitTemplates
 
     describe '#update' do
       let(:os) { FactoryBot.create(:operatingsystem, :with_associations, type: 'Redhat') }
+      let(:fake_response) do
+        {
+          'name' => 'www.example.com',
+          'mac' => '00:11:22:33:44:55',
+          'ip' => '192.168.0.10',
+          'filename' => 'pxelinux.0',
+          'nextServer' => '1.2.3.4',
+          'hostname' => 'www.example.com',
+          'subnet' => '192.168.0.0/255.255.255.0'
+        }
+      end
 
       setup do
         host.expects(:skip_orchestration_for_testing?).at_least_once.returns(false)
@@ -37,13 +48,22 @@ module ForemanGitTemplates
         setup do
           ProxyAPI::TFTP.any_instance.expects(:set).returns(true)
 
-          if Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.0')
+          stub_request(:get, /https:\/\/.*:8443\/tftp\/serverName/)
+            .to_return(status: 200, body: 'server.com')
+
+          if Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.5')
+            stub_request(:get, /.+:\/\/.+\/dhcp\/[0-9.]{7,15}\/mac\/([0-9a-f]{2}:){5}[0-9a-f]{2}/)
+              .to_return(status: 200, body: fake_rest_client_response(fake_response))
+
+            ProxyAPI::TFTP.any_instance.expects(:bootServer).returns('127.0.0.1').twice
+          else
             ProxyAPI::TFTP.any_instance.expects(:bootServer).returns('127.0.0.1')
-            ProxyAPI::DHCP.any_instance.expects(:set).returns(true)
-            ProxyAPI::DHCP.any_instance.expects(:record).with(host.subnet.network, host.dhcp_records.first.mac).returns(host.dhcp_records.first)
-            ProxyAPI::DHCP.any_instance.expects(:records_by_ip).with(host.subnet.network, host.provision_interface.ip).returns([host.dhcp_records.first])
-            ProxyAPI::DHCP.any_instance.expects(:delete).returns(true)
           end
+
+          ProxyAPI::DHCP.any_instance.expects(:records_by_ip).with(host.subnet.network, host.provision_interface.ip).returns([host.dhcp_records.first])
+          ProxyAPI::DHCP.any_instance.expects(:delete).returns(true)
+          ProxyAPI::DHCP.any_instance.expects(:record).with(host.subnet.network, host.dhcp_records.first.mac).returns(host.dhcp_records.first)
+          ProxyAPI::DHCP.any_instance.expects(:set).returns(true)
         end
 
         context 'when host is in build mode' do
@@ -83,11 +103,13 @@ module ForemanGitTemplates
         setup do
           stub_request(:get, host.params['template_url']).to_return(status: 404)
 
-          if Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.0')
+          if Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.5')
+            ProxyAPI::TFTP.any_instance.expects(:bootServer).returns('127.0.0.1').twice
+          elsif Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.0')
             ProxyAPI::TFTP.any_instance.expects(:bootServer).returns('127.0.0.1')
-            ProxyAPI::DHCP.any_instance.expects(:record).with(host.subnet.network, host.dhcp_records.first.mac).returns(host.dhcp_records.first)
-            ProxyAPI::DHCP.any_instance.expects(:records_by_ip).with(host.subnet.network, host.provision_interface.ip).returns([host.dhcp_records.first])
           end
+          ProxyAPI::DHCP.any_instance.expects(:record).with(host.subnet.network, host.dhcp_records.first.mac).returns(host.dhcp_records.first)
+          ProxyAPI::DHCP.any_instance.expects(:records_by_ip).with(host.subnet.network, host.provision_interface.ip).returns([host.dhcp_records.first])
         end
 
         let(:expected_errors) { ["No PXEGrub2 template was found for host #{host.name}. Repository url: #{host.params['template_url']}"] }
