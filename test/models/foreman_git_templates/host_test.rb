@@ -36,7 +36,7 @@ module ForemanGitTemplates
           'filename' => 'pxelinux.0',
           'nextServer' => '1.2.3.4',
           'hostname' => 'www.example.com',
-          'subnet' => '192.168.0.0/255.255.255.0'
+          'subnet' => '192.168.0.0/255.255.255.0',
         }
       end
 
@@ -48,33 +48,35 @@ module ForemanGitTemplates
         setup do
           ProxyAPI::TFTP.any_instance.expects(:set).returns(true)
 
-          stub_request(:get, /https:\/\/.*:8443\/tftp\/serverName/)
+          stub_request(:get, %r{https://.*:8443/tftp/serverName})
             .to_return(status: 200, body: 'server.com')
 
-          if Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.5')
-            stub_request(:get, /.+:\/\/.+\/dhcp\/[0-9.]{7,15}\/mac\/([0-9a-f]{2}:){5}[0-9a-f]{2}/)
-              .to_return(status: 200, body: fake_rest_client_response(fake_response))
+          stub_request(:get, %r{.+://.+/dhcp/[0-9.]{7,15}/mac/([0-9a-f]{2}:){5}[0-9a-f]{2}})
+            .to_return(status: 200, body: fake_rest_client_response(fake_response))
 
-            ProxyAPI::TFTP.any_instance.expects(:bootServer).returns('127.0.0.1').twice
-          else
-            ProxyAPI::TFTP.any_instance.expects(:bootServer).returns('127.0.0.1')
-          end
+          ProxyAPI::TFTP.any_instance.expects(:bootServer).returns('127.0.0.1').twice
 
-          ProxyAPI::DHCP.any_instance.expects(:records_by_ip).with(host.subnet.network, host.provision_interface.ip).returns([host.dhcp_records.first])
+          ProxyAPI::DHCP.any_instance.expects(:records_by_ip).with(host.subnet.network,
+            host.provision_interface.ip).returns([host.dhcp_records.first])
           ProxyAPI::DHCP.any_instance.expects(:delete).returns(true)
-          ProxyAPI::DHCP.any_instance.expects(:record).with(host.subnet.network, host.dhcp_records.first.mac).returns(host.dhcp_records.first)
+          ProxyAPI::DHCP.any_instance.expects(:record).with(host.subnet.network,
+            host.dhcp_records.first.mac).returns(host.dhcp_records.first)
           ProxyAPI::DHCP.any_instance.expects(:set).returns(true)
         end
 
         context 'when host is in build mode' do
-          let(:host) { FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, operatingsystem: os, build: true) }
+          let(:host) do
+            FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, operatingsystem: os, build: true)
+          end
 
           it 'updates the host' do
             ProxyAPI::TFTP.any_instance.expects(:fetch_boot_file).twice.returns(true)
 
             Dir.mktmpdir do |dir|
               stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-                tar.add_file_simple('templates/PXEGrub2/template.erb', 644, host.name.length) { |io| io.write(host.name) }
+                tar.add_file_simple('templates/PXEGrub2/template.erb', 644, host.name.length) do |io|
+                  io.write(host.name)
+                end
               end
 
               assert host.update(name: 'newname')
@@ -84,12 +86,16 @@ module ForemanGitTemplates
         end
 
         context 'when host is not in build mode' do
-          let(:host) { FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, operatingsystem: os, build: false) }
+          let(:host) do
+            FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, operatingsystem: os, build: false)
+          end
 
           it 'updates the host' do
             Dir.mktmpdir do |dir|
               stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-                tar.add_file_simple('templates/PXEGrub2/default_local_boot.erb', 644, host.name.length) { |io| io.write(host.name) }
+                tar.add_file_simple('templates/PXEGrub2/default_local_boot.erb', 644, host.name.length) do |io|
+                  io.write(host.name)
+                end
               end
 
               assert host.update(name: 'newname')
@@ -103,32 +109,36 @@ module ForemanGitTemplates
         setup do
           stub_request(:get, host.params['template_url']).to_return(status: 404)
 
-          if Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.5')
-            ProxyAPI::TFTP.any_instance.expects(:bootServer).returns('127.0.0.1').twice
-          elsif Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.0')
-            ProxyAPI::TFTP.any_instance.expects(:bootServer).returns('127.0.0.1')
-          end
-          ProxyAPI::DHCP.any_instance.expects(:record).with(host.subnet.network, host.dhcp_records.first.mac).returns(host.dhcp_records.first)
-          ProxyAPI::DHCP.any_instance.expects(:records_by_ip).with(host.subnet.network, host.provision_interface.ip).returns([host.dhcp_records.first])
+          ProxyAPI::TFTP.any_instance.expects(:bootServer).returns('127.0.0.1').twice
+          ProxyAPI::DHCP.any_instance.expects(:record).with(host.subnet.network,
+            host.dhcp_records.first.mac).returns(host.dhcp_records.first)
+          ProxyAPI::DHCP.any_instance.expects(:records_by_ip).with(host.subnet.network,
+            host.provision_interface.ip).returns([host.dhcp_records.first])
         end
 
-        let(:expected_errors) { ["No PXEGrub2 template was found for host #{host.name}. Repository url: #{host.params['template_url']}"] }
+        let(:expected_errors) do
+          ["No PXEGrub2 template was found for host #{host.name}. Repository url: #{host.params['template_url']}"]
+        end
 
         context 'when host is in build mode' do
-          let(:host) { FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, operatingsystem: os, build: true) }
+          let(:host) do
+            FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, operatingsystem: os, build: true)
+          end
 
           it 'does not update the host' do
-            assert_equal false, host.update(name: 'newname')
+            assert_not host.update(name: 'newname')
             assert_equal expected_errors, host.errors[:base]
             assert_equal expected_errors, host.errors[:'interfaces.base']
           end
         end
 
         context 'when host is not in build mode' do
-          let(:host) { FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, operatingsystem: os, build: false) }
+          let(:host) do
+            FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, operatingsystem: os, build: false)
+          end
 
           it 'does not update the host' do
-            assert_equal false, host.update(name: 'newname')
+            assert_not host.update(name: 'newname')
             assert_equal expected_errors, host.errors[:base]
             assert_equal expected_errors, host.errors[:'interfaces.base']
           end

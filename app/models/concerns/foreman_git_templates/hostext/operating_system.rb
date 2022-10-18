@@ -16,6 +16,7 @@ module ForemanGitTemplates
         def available_template_kinds(provisioning = nil)
           return super unless repository_path
 
+          # rubocop:disable Layout/RescueEnsureAlignment
           @available_template_kinds ||= template_kinds(provisioning).map do |kind|
             repository_klass.new(name: kind.name).tap do |t|
               t.template = RepositoryReader.call(repository_path, t.path)
@@ -23,6 +24,7 @@ module ForemanGitTemplates
           rescue RepositoryReader::FileUnreadableError # file is missing or empty
             next
           end.compact
+          # rubocop:enable Layout/RescueEnsureAlignment
         end
       end
 

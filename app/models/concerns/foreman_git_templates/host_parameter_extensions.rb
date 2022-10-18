@@ -11,9 +11,9 @@ module ForemanGitTemplates
     private
 
     def template_url_is_reachable
-      RestClient::Request.execute(method: :head, url: value, timeout: Setting::GitTemplates['template_url_validation_timeout'])
+      RestClient::Request.execute(method: :head, url: value, timeout: Setting['template_url_validation_timeout'])
     rescue RestClient::ExceptionWithResponse, URI::InvalidURIError, SocketError => e
-      errors.add(:value, _('Cannot fetch templates from %{url}: %{error}') % { url: value, error: e.message })
+      errors.add(:value, format(_('Cannot fetch templates from %<url>s: %<error>s'), url: value, error: e.message))
     end
   end
 end

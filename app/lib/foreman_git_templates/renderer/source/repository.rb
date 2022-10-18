@@ -20,6 +20,7 @@ module ForemanGitTemplates
         private
 
         attr_reader :repository_path
+
         delegate :path, to: :template, prefix: true
       end
     end

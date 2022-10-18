@@ -19,6 +19,7 @@ module ForemanGitTemplates
 
         private
 
+        # rubocop:todo Metrics/AbcSize
         def validate_tftp
           return super unless feasible_for_git_template_rendering?
           return unless tftp? || tftp6?
@@ -27,8 +28,10 @@ module ForemanGitTemplates
           pxe_kind = host.operatingsystem.pxe_loader_kind(host)
           return unless pxe_kind && host.provisioning_template(kind: pxe_kind).nil?
 
-          failure _('No %{kind} template was found for host %{host}. Repository url: %{url}') % { kind: pxe_kind, host: host.name, url: host.params['template_url'] }
+          failure format(_('No %<kind>s template was found for host %<host>s. Repository url: %<url>s'),
+            kind: pxe_kind, host: host.name, url: host.params['template_url'])
         end
+        # rubocop:enable Metrics/AbcSize
 
         def feasible_for_git_template_rendering?
           return false unless host.is_a?(Host::Managed)

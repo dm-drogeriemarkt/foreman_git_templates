@@ -34,8 +34,12 @@ class UnattendedControllerTest < ActionController::TestCase
       template_content = "<%= snippet('#{snippet_name}', variables: { foo: 'bar' }) %>"
 
       stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-        tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
-        tar.add_file_simple("templates/snippets/#{snippet_name.downcase}.erb", 644, snippet_content.length) { |io| io.write(snippet_content) }
+        tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) do |io|
+          io.write(template_content)
+        end
+        tar.add_file_simple("templates/snippets/#{snippet_name.downcase}.erb", 644, snippet_content.length) do |io|
+          io.write(snippet_content)
+        end
       end
 
       get :host_template, params: { kind: kind, hostname: host.name }, session: set_session_user
@@ -58,20 +62,34 @@ class UnattendedControllerTest < ActionController::TestCase
       template_content = "<%= snippet('#{snippet_name}', variables: { foo: 'foo' }) %>"
 
       stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-        tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
-        tar.add_file_simple("templates/snippets/#{snippet_name.downcase}.erb", 644, snippet_content.length) { |io| io.write(snippet_content) }
-        tar.add_file_simple("templates/snippets/#{nested_snippet_name.downcase}.erb", 644, nested_snippet_content.length) { |io| io.write(nested_snippet_content) }
+        tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) do |io|
+          io.write(template_content)
+        end
+        tar.add_file_simple("templates/snippets/#{snippet_name.downcase}.erb", 644, snippet_content.length) do |io|
+          io.write(snippet_content)
+        end
+        tar.add_file_simple("templates/snippets/#{nested_snippet_name.downcase}.erb", 644,
+          nested_snippet_content.length) do |io|
+          io.write(nested_snippet_content)
+        end
       end
 
       get :host_template, params: { kind: kind, hostname: host.name }, session: set_session_user
       assert_response :success
-      assert_equal 'foo bar', response.body.strip
+      assert_equal 'foo foobar', response.body.strip
     end
   end
 
   describe 'iPXE templates' do
     let(:host) do
-      FactoryBot.create(:host, :managed, :with_template_url, build: false, operatingsystem: os, ptable: os.ptables.first)
+      FactoryBot.create(
+        :host,
+        :managed,
+        :with_template_url,
+        build: false,
+        operatingsystem: os,
+        ptable: os.ptables.first
+      )
     end
 
     context 'host not in build mode' do

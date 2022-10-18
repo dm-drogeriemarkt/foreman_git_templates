@@ -21,7 +21,7 @@ module ForemanGitTemplates
         it 'is invlid' do
           stub_request(:head, template_url).to_return(status: 401)
 
-          assert_equal false, host_parameter.valid?
+          assert_not host_parameter.valid?
           assert_not_empty host_parameter.errors[:value]
         end
       end
@@ -30,7 +30,7 @@ module ForemanGitTemplates
         it 'is invlid' do
           stub_request(:head, template_url).to_return(status: 404)
 
-          assert_equal false, host_parameter.valid?
+          assert_not host_parameter.valid?
           assert_not_empty host_parameter.errors[:value]
         end
       end
@@ -39,7 +39,7 @@ module ForemanGitTemplates
         it 'is invlid' do
           stub_request(:head, template_url).to_return(status: 500)
 
-          assert_equal false, host_parameter.valid?
+          assert_not host_parameter.valid?
           assert_not_empty host_parameter.errors[:value]
         end
       end
@@ -48,7 +48,7 @@ module ForemanGitTemplates
         let(:template_url) { 'not URL value' }
 
         it 'is invlid' do
-          assert_equal false, host_parameter.valid?
+          assert_not host_parameter.valid?
           assert_not_empty host_parameter.errors[:value]
         end
       end
