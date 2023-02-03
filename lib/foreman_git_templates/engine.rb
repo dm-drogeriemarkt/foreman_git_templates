@@ -8,6 +8,12 @@ module ForemanGitTemplates
     config.autoload_paths += Dir["#{config.root}/app/services"]
     config.autoload_paths += Dir["#{config.root}/app/controllers/concerns"]
 
+    initializer 'foreman_git_templates.load_app_instance_data' do |app|
+      ForemanGitTemplates::Engine.paths['db/migrate'].existent.each do |path|
+        app.config.paths['db/migrate'] << path
+      end
+    end
+
     initializer 'foreman_git_templates.register_plugin', before: :finisher_hook do |_app|
       Foreman::Plugin.register :foreman_git_templates do
         requires_foreman '>= 3.1'
