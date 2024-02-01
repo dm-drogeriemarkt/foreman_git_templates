@@ -1,44 +1,10 @@
-require: rubocop-rails
+inherit_gem:
+  theforeman-rubocop:
+    - default.yml
 
-AllCops:
-  TargetRubyVersion: 2.5
-  TargetRailsVersion: 5.1
+Layout/LineLength:
   Exclude:
-    - 'Rakefile'
-
-Rails:
-  Enabled: true
-
-# Don't enforce documentation
-Style/Documentation:
-  Enabled: false
-
-Metrics/MethodLength:
-  Max: 15
-
-Metrics/LineLength:
-  Max: 190
-
-Metrics/AbcSize:
-  Max: 25
-
-Metrics/CyclomaticComplexity:
-  Max: 8
-
-Style/WordArray:
-  Enabled: false
-
-Style/SymbolArray:
-  Enabled: false
-
-Style/RegexpLiteral:
-  Enabled: false
-
-Style/FormatStringToken:
-  Enabled: false
-
-FormatString:
-  EnforcedStyle: percent
+    - 'test/**/*'
 
 Metrics/BlockLength:
   Exclude:
@@ -47,9 +13,3 @@ Metrics/BlockLength:
 Metrics/ClassLength:
   Exclude:
     - 'test/**/*'
-
-Layout/RescueEnsureAlignment:
-  Enabled: false
-
-Gemspec/RequiredRubyVersion:
-  Enabled: false

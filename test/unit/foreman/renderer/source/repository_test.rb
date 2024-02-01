@@ -22,7 +22,7 @@ class RepositorySourceTest < ActiveSupport::TestCase
 
     test 'should return snippet template' do
       assert snippet.is_a?(ForemanGitTemplates::SnippetRepositoryTemplate)
-      assert snippet.respond_to?(:render)
+      assert_respond_to snippet, :render
       assert_equal snippet_name, snippet.name
     end
   end

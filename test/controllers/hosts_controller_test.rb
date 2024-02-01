@@ -8,7 +8,7 @@ class HostsControllerTest < ActionController::TestCase
   describe '#templates' do
     it 'returns only templates that are defined in the archive' do
       Dir.mktmpdir do |dir|
-        expected_kinds = ['PXEGrub', 'PXELinux', 'iPXE', 'PXEGrub2', 'provision']
+        expected_kinds = %w[PXEGrub PXELinux iPXE PXEGrub2 provision]
 
         stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
           expected_kinds.each do |kind|

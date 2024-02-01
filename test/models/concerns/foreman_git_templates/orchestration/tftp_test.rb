@@ -14,7 +14,9 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
       it 'renders main template' do
         Dir.mktmpdir do |dir|
           stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
+            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) do |io|
+              io.write(template_content)
+            end
           end
 
           assert_equal template_content, host.generate_pxe_template(kind)
@@ -38,7 +40,10 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
       it 'renders default local boot template' do
         Dir.mktmpdir do |dir|
           stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, default_local_boot_template_content.length) { |io| io.write(default_local_boot_template_content) }
+            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644,
+              default_local_boot_template_content.length) do |io|
+              io.write(default_local_boot_template_content)
+            end
           end
 
           assert_equal default_local_boot_template_content, host.generate_pxe_template(kind)
@@ -58,22 +63,29 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
   end
 
   describe '#validate_tftp' do
-    let(:host) { FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, build: false, pxe_loader: 'PXELinux BIOS') }
+    let(:host) do
+      FactoryBot.create(:host, :with_tftp_orchestration, :with_template_url, build: false, pxe_loader: 'PXELinux BIOS')
+    end
     let(:kind) { 'PXELinux' }
     let(:template_content) { 'main template content' }
     let(:default_local_boot_template_content) { 'default local boot template content' }
 
     context 'host is in build mode' do
       setup do
-        host.primary_interface.expects(:valid?).returns(true) if Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.0')
+        host.primary_interface.expects(:valid?).returns(true)
         host.update(build: true)
       end
 
       it 'validates that the host is ready for tftp' do
         Dir.mktmpdir do |dir|
           stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
-            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, default_local_boot_template_content.length) { |io| io.write(default_local_boot_template_content) }
+            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) do |io|
+              io.write(template_content)
+            end
+            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644,
+              default_local_boot_template_content.length) do |io|
+              io.write(default_local_boot_template_content)
+            end
           end
 
           host.provision_interface.send(:validate_tftp)
@@ -86,8 +98,13 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
       it 'validates that the host is ready for tftp' do
         Dir.mktmpdir do |dir|
           stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
-            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, default_local_boot_template_content.length) { |io| io.write(default_local_boot_template_content) }
+            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) do |io|
+              io.write(template_content)
+            end
+            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644,
+              default_local_boot_template_content.length) do |io|
+              io.write(default_local_boot_template_content)
+            end
           end
 
           host.provision_interface.send(:validate_tftp)
@@ -106,7 +123,7 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
 
     context 'host is in build mode' do
       setup do
-        host.primary_interface.expects(:valid?).returns(true) if Gem::Version.new(SETTINGS[:version].notag) >= Gem::Version.new('2.0')
+        host.primary_interface.expects(:valid?).returns(true)
         host.update(build: true)
       end
 
@@ -115,11 +132,17 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
 
         Dir.mktmpdir do |dir|
           stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
-            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, default_local_boot_template_content.length) { |io| io.write(default_local_boot_template_content) }
+            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) do |io|
+              io.write(template_content)
+            end
+            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644,
+              default_local_boot_template_content.length) do |io|
+              io.write(default_local_boot_template_content)
+            end
           end
 
-          ProxyAPI::TFTP.any_instance.expects(:set).with(kind, host.interfaces.first.mac, pxeconfig: template_content).once
+          ProxyAPI::TFTP.any_instance.expects(:set).with(kind, host.interfaces.first.mac,
+            pxeconfig: template_content).once
 
           host.provision_interface.send(:setTFTP, kind)
         end
@@ -136,11 +159,17 @@ class TFTPOrchestrationTest < ActiveSupport::TestCase
 
         Dir.mktmpdir do |dir|
           stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
-            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) { |io| io.write(template_content) }
-            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644, default_local_boot_template_content.length) { |io| io.write(default_local_boot_template_content) }
+            tar.add_file_simple("templates/#{kind}/template.erb", 644, template_content.length) do |io|
+              io.write(template_content)
+            end
+            tar.add_file_simple("templates/#{kind}/default_local_boot.erb", 644,
+              default_local_boot_template_content.length) do |io|
+              io.write(default_local_boot_template_content)
+            end
           end
 
-          ProxyAPI::TFTP.any_instance.expects(:set).with(kind, host.interfaces.first.mac, pxeconfig: default_local_boot_template_content).once
+          ProxyAPI::TFTP.any_instance.expects(:set).with(kind, host.interfaces.first.mac,
+            pxeconfig: default_local_boot_template_content).once
 
           host.provision_interface.send(:setTFTP, kind)
         end

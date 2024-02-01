@@ -34,7 +34,7 @@ module Hostext
 
     test 'available_template_kinds finds only templates that are defined in the repository' do
       Dir.mktmpdir do |dir|
-        expected_kinds = ['PXEGrub', 'PXELinux', 'iPXE', 'PXEGrub2', 'provision']
+        expected_kinds = %w[PXEGrub PXELinux iPXE PXEGrub2 provision]
 
         stub_repository host.params['template_url'], "#{dir}/repo.tar.gz" do |tar|
           expected_kinds.each do |kind|

@@ -27,6 +27,7 @@ module ForemanGitTemplates
 
     attr_reader :repository_path, :file
 
+    # rubocop:todo Metrics/AbcSize, Metrics/MethodLength
     def content
       @content ||= Tar.untar(repository_path) do |tar|
         return tar.each do |entry|
@@ -39,7 +40,13 @@ module ForemanGitTemplates
       end
     rescue Errno::ENOENT, Zlib::GzipFile::Error => e
       Foreman::Logging.exception("GitTemplates: Cannot read repository from #{repository_path}", e)
-      raise RepositoryUnreadableError, _('Cannot read repository from %{repository_path}: %{error}') % { repository_path: repository_path, error: e.message }
+      raise RepositoryUnreadableError,
+        format(
+          _('Cannot read repository from %<repository_path>s: %<error>s'),
+          repository_path: repository_path,
+          error: e.message
+        )
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
   end
 end

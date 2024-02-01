@@ -18,6 +18,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'rest-client', '~> 2'
 
   s.add_development_dependency 'rdoc'
-  s.add_development_dependency 'rubocop', '~> 0.89.0'
-  s.add_development_dependency 'rubocop-rails'
+  s.add_development_dependency 'theforeman-rubocop', '~> 0.1.2'
 end

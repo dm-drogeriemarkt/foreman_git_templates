@@ -13,7 +13,7 @@ module ForemanGitTemplates
         template = ForemanGitTemplates::DefaultLocalBootRepositoryTemplate.new(name: 'iPXE')
         safe_render(template)
       rescue ForemanGitTemplates::RepositoryReader::MissingFileError
-        render_ipxe_message(message: _('iPXE default local boot template not found in repository at templates/iPXE/default_local_boot.erb'))
+        render_ipxe_message(message: _('iPXE default local boot template not found in repository at templates/iPXE/default_local_boot.erb')) # rubocop:disable Layout/LineLength
       end
     end
 
