@@ -37,6 +37,11 @@ jobs:
         with:
           repository: theforeman/foreman
           ref: ${{ matrix.foreman-core-branch }}
+          fetch-depth: 0
+      - name: Apply patches for Foreman >= 3.2 and <= 3.7
+        if: ${{ contains(fromJson('["3.2-stable", "3.3-stable", "3.4-stable", "3.5-stable", "3.6-stable", "3.7-stable"]'), matrix.foreman-core-branch) }}
+        run: |
+          git cherry-pick -n 1c3a4155f286352e0abbf0d0b298e47e81c2d6c5 # Pin minitest < 5.19 to resolve test failures (see https://github.com/theforeman/foreman/pull/9781)
       - uses: actions/checkout@v3
         with:
           path: foreman_git_templates
