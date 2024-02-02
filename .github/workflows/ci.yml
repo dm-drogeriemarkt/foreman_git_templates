@@ -15,7 +15,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        foreman-core-branch: [3.1-stable, 3.2-stable, 3.3-stable, 3.4-stable, 3.5-stable, develop]
+        foreman-core-branch:
+          - 3.1-stable
+          - 3.2-stable
+          - 3.3-stable
+          - 3.4-stable
+          - 3.5-stable
+          - 3.6-stable
+          - 3.7-stable
+          - 3.8-stable
+          - 3.9-stable
+          - develop
         ruby-version: [2.7]
         node-version: [14]
     steps:
@@ -27,6 +37,11 @@ jobs:
         with:
           repository: theforeman/foreman
           ref: ${{ matrix.foreman-core-branch }}
+          fetch-depth: 0
+      - name: Apply patches for Foreman >= 3.2 and <= 3.7
+        if: ${{ contains(fromJson('["3.2-stable", "3.3-stable", "3.4-stable", "3.5-stable", "3.6-stable", "3.7-stable"]'), matrix.foreman-core-branch) }}
+        run: |
+          git cherry-pick -n 1c3a4155f286352e0abbf0d0b298e47e81c2d6c5 # Pin minitest < 5.19 to resolve test failures (see https://github.com/theforeman/foreman/pull/9781)
       - uses: actions/checkout@v3
         with:
           path: foreman_git_templates
@@ -37,10 +52,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version:  ${{ matrix.node-version }}
+          node-version: ${{ matrix.node-version }}
       - name: Setup Bundler
         run: |
-          gem install bundler
+          gem install bundler -v 2.4.22
           bundle config path vendor/bundle
           bundle config set without journald development console mysql2 sqlite
           echo "gem 'foreman_git_templates', path: './foreman_git_templates'" > bundler.d/foreman_git_templates.local.rb
