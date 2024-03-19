@@ -40,7 +40,7 @@ task default: :test
 begin
   require 'rubocop/rake_task'
   RuboCop::RakeTask.new
-rescue StandardError => _e
+rescue StandardError
   puts 'Rubocop not loaded.'
 end
 

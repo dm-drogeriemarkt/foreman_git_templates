@@ -24,6 +24,7 @@ jobs:
       matrix:
         foreman:
           - "develop"
+          - "3.10-stable"
           - "3.9-stable"
           - "3.8-stable"
           - "3.7-stable"

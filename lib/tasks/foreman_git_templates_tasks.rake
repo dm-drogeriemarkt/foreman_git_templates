@@ -14,27 +14,4 @@ namespace :test do
   end
 end
 
-namespace :foreman_git_templates do
-  task rubocop: :environment do
-    begin
-      require 'rubocop/rake_task'
-      RuboCop::RakeTask.new(:rubocop_foreman_git_templates) do |task|
-        task.patterns = ["#{ForemanGitTemplates::Engine.root}/app/**/*.rb",
-                         "#{ForemanGitTemplates::Engine.root}/lib/**/*.rb",
-                         "#{ForemanGitTemplates::Engine.root}/test/**/*.rb"]
-      end
-    rescue StandardError
-      puts 'Rubocop not loaded.'
-    end
-
-    Rake::Task['rubocop_foreman_git_templates'].invoke
-  end
-end
-
 Rake::Task[:test].enhance ['test:foreman_git_templates']
-
-load 'tasks/jenkins.rake'
-if Rake::Task.task_defined?(:'jenkins:unit')
-  Rake::Task['jenkins:unit'].enhance ['test:foreman_git_templates',
-                                      'foreman_git_templates:rubocop']
-end
