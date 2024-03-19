@@ -16,7 +16,6 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.5', '< 4'
 
-  s.add_dependency 'down', '~> 4.5'
   s.add_dependency 'rest-client', '~> 2'
 
   s.add_development_dependency 'rdoc'
