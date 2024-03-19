@@ -6,6 +6,8 @@ class FixGitTemplatesSettingsCategoryToDsl < ActiveRecord::Migration[6.0]
   end
 
   def up
-    MigrationSettings.where(category: 'Setting::GitTemplates').update_all(category: 'Setting') if column_exists?(:settings, :category)
+    return unless column_exists?(:settings, :category)
+
+    MigrationSettings.where(category: 'Setting::GitTemplates').update_all(category: 'Setting')
   end
 end

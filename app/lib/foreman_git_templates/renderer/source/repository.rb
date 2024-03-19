@@ -5,6 +5,7 @@ module ForemanGitTemplates
     module Source
       class Repository < Foreman::Renderer::Source::Base
         def initialize(template, repository_path)
+          super(template)
           @template = template
           @repository_path = repository_path
         end

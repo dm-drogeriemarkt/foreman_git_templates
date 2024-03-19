@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'down'
+require 'rest-client'
 
 module ForemanGitTemplates
   class RepositoryFetcher
@@ -9,10 +9,10 @@ module ForemanGitTemplates
     end
 
     def call
-      Down.download(repository_url)
-    rescue Down::ResponseError => e
+      RestClient::Request.execute(method: :get, url: repository_url, raw_response: true).file
+    rescue RestClient::RequestFailed => e
       raise RepositoryFetcherError, "Cannot fetch repository from #{repository_url}. Response code: #{e.response.code}"
-    rescue Down::Error => e
+    rescue RestClient::Exception => e
       raise RepositoryFetcherError, "Cannot fetch repository from #{repository_url}, #{e.message}"
     end
 

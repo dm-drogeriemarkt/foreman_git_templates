@@ -13,3 +13,7 @@ Metrics/BlockLength:
 Metrics/ClassLength:
   Exclude:
     - 'test/**/*'
+
+Rails/ApplicationRecord:
+  Exclude:
+    - db/**/*
