@@ -9,8 +9,7 @@ This is a plugin for Foreman that adds support for using templates from Git repo
 | Foreman Version | Plugin Version |
 | --------------- | -------------- |
 | >= 1.20         | ~> 1.0         |
-| >= 2.3          | ~> 2.0         |
-| >= 3.1          | ~> 3.0         |
+| >= 3.9          | ~> 2.0         |
 
 ## Installation
 
